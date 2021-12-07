@@ -76,27 +76,27 @@ const LiveAuction = () => {
     if (chainId === 4) {
       provider = new ethers.providers.InfuraProvider(
         "rinkeby",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 3) {
       provider = new ethers.providers.InfuraProvider(
         "ropsten",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 5) {
       provider = new ethers.providers.InfuraProvider(
         "goerli",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 42) {
       provider = new ethers.providers.InfuraProvider(
         "kovan",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 1) {
       provider = new ethers.providers.InfuraProvider(
-        "goerli",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "mainnet",
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     }
 

@@ -270,7 +270,7 @@ const Profile = () => {
           copied
         </span>
       </Text>
-      <Text style={{ fontWeight: 600 }}>{balance ? balance : 0} BIT</Text>
+      <Text style={{ fontWeight: 600 }}>{balance ? balance : 0} WETH</Text>
     </div>
   );
 

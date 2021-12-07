@@ -66,6 +66,7 @@ const CollectionCard = (props) => {
 
   const onSubmit = async (values, onSubmitProps) => {
     const { currency, platform, token, price, days } = values;
+    console.log(token, price, days)
     setIsModal(false);
     setIsLoading(true);
     setProcessContent(
@@ -100,9 +101,6 @@ const CollectionCard = (props) => {
     currency,
     platform,
     token,
-    price,
-    days,
-    allowMarketplace = false,
     isERC721,
   }) {
 
@@ -146,7 +144,7 @@ const CollectionCard = (props) => {
         platform,
         tokenNum,
         atomic(price.toString(), decimals),
-        days,
+        Number(days) * 144,
         "0x0000000000000000000000000000000000000000",
         allowMarketplace,
         isERC721

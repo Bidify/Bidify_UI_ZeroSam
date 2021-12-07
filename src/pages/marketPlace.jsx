@@ -153,11 +153,11 @@ const MarketPlace = () => {
               />
             </section>
             <p>
-              <Text component="span">0 BIT</Text>
-              <Text component="span">1000 BIT</Text>
+              <Text component="span">0 WETH</Text>
+              <Text component="span">1000 WETH</Text>
             </p>
           </div>
-          <p style={{ transform: "translateY(-20px)" }}>{range} BIT</p>
+          <p style={{ transform: "translateY(-20px)" }}>{range} WETH</p>
         </div>
       </div>
     </div>

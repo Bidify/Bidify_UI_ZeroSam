@@ -1,5 +1,6 @@
 export const BIDIFY = {
   address: {
+    1: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
     3: "0xd0b5Ad6E34f06278fe0f536660cABc081F3dAc90",
     // 4: "0x69668f58921ce2c49638c6a4059fbc498a3d55fa",  current contract
     // 4: "0x9d97627f9bd67554510cea48df6fb0b7881ea5bc",  5minute contract
@@ -1385,10 +1386,11 @@ export const ERC721 = {
   ],
 };
 
-export const BIT = {
+export const BIT = { //WETH
   address: {
+    1: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
     3: "0x87D6eDf380767461A390e41076Bcb20DFEC676A0",
-    4: "0x6882cB0A3fAE4B9Ef2451C5aBaE41a71eb784495",
+    4: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
     42: "0x010Dd8B6EDa66127a1F2fCfB53933515D111c855",
     5: "0x89bAF37C8214bFcaeCB0586FD26E1459D40417c6",
   },
@@ -1691,8 +1693,8 @@ export const BIT = {
 };
 
 export const URLS = {
-  1: "https://mainnet.infura.io/v3/6a440ccec5fb45f0858a51610c480c6a",
-  3: "https://ropsten.infura.io/v3/6a440ccec5fb45f0858a51610c480c6a",
-  4: "https://rinkeby.infura.io/v3/6a440ccec5fb45f0858a51610c480c6a",
-  5: "https://goerli.infura.io/v3/6a440ccec5fb45f0858a51610c480c6a",
+  1: "https://mainnet.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
+  3: "https://ropsten.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
+  4: "https://rinkeby.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
+  5: "https://goerli.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
 };

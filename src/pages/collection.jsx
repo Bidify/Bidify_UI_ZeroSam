@@ -49,27 +49,27 @@ const Collection = () => {
     if (chainId === 4) {
       provider = new ethers.providers.InfuraProvider(
         "rinkeby",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 3) {
       provider = new ethers.providers.InfuraProvider(
         "ropsten",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 5) {
       provider = new ethers.providers.InfuraProvider(
         "goerli",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 42) {
       provider = new ethers.providers.InfuraProvider(
         "kovan",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     } else if (chainId === 1) {
       provider = new ethers.providers.InfuraProvider(
-        "goerli",
-        "5eee22163f644a2caebb48fb76f3cce0"
+        "mainnet",
+        "0c8149f8e63b4b818d441dd7f74ab618"
       );
     }
 
@@ -145,8 +145,8 @@ const Collection = () => {
   };
 
   async function getNFTs() {
-    const from = "0x0B172a4E265AcF4c2E0aB238F63A44bf29bBd158";
-    // const from = account;
+    // const from = "0x0B172a4E265AcF4c2E0aB238F63A44bf29bBd158";
+    const from = account;
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
     // Get all transfers to us
     const logs = await web3.eth.getPastLogs({
@@ -163,7 +163,6 @@ const Collection = () => {
     // Filter to just tokens which are still in our custody
     const res = [];
     const ids = {};
-
     for (let log of logs) {
       if (log.topics[3] !== undefined) {
         let platform = log.address;
@@ -223,7 +222,6 @@ const Collection = () => {
         continue;
       }
     }
-    console.log("nfts", res)
     return res;
   }
 

@@ -5,7 +5,7 @@ export const getNfts = async (platform, token) => {
   let provider;
   provider = new ethers.providers.InfuraProvider(
     "mainnet",
-    "5eee22163f644a2caebb48fb76f3cce0"
+    "0c8149f8e63b4b818d441dd7f74ab618"
   );
 
   const ethersConfig = {
