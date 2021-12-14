@@ -29,7 +29,7 @@ const MyBiddings = () => {
   //INITIALIZING HOOKS
 
   const { userState, userDispatch } = useContext(UserContext);
-  const { account, chainId } = useWeb3React();
+  const { active, account, chainId } = useWeb3React();
 
   //HANDLING METHODS
 
@@ -163,7 +163,7 @@ const MyBiddings = () => {
 
   const renderCards = (
     <>
-      {userState?.userBiddings?.length > 0 ? (
+      { !active ? <NoArtifacts title="Bidify is not connected to Ethereum." /> : userState?.userBiddings?.length > 0 ? (
         <div className="live_auction_card_wrapper">
           {userState?.userBiddings?.map((lists, index) => {
             return <Card {...lists} key={index} />;

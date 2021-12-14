@@ -42,7 +42,7 @@ const ScreenTemplate = ({ children }) => {
     setInitialLoad(true);
     setTimeout(() => {
       setInitialLoad(false);
-    }, 2000);
+    }, 500);
   }, []);
 
   if (initailLoad) {
@@ -87,16 +87,16 @@ const ScreenTemplate = ({ children }) => {
     );
   }
 
-  if (!active) {
-    return (
-      <div className="flex_center">
-        <img src={logofull} alt="logo" width={300} />
-        <Button variant="primary" onClick={() => activate(injected)}>
-          Connect Wallet
-        </Button>
-      </div>
-    );
-  }
+  // if (!active) {
+  //   return (
+  //     <div className="flex_center">
+  //       <img src={logofull} alt="logo" width={300} />
+  //       <Button variant="primary" onClick={() => activate(injected)}>
+  //         Connect Wallet
+  //       </Button>
+  //     </div>
+  //   );
+  // }
 
   return <div className="screen_template">{children}</div>;
 };

@@ -253,10 +253,12 @@ const Profile = () => {
         <img src={metamask} alt="metamask logo" width={35} />
       </div>
       <Text className="account_info">
-        <Text component="span" style={{ fontSize: 11 }}>{`${account?.slice(
-          0,
-          4
-        )}....${account?.slice(account?.length - 12)}`}</Text>
+        {
+          !account ? <Text component="span" style={{fontSize: 11}}>No account</Text> : <Text component="span" style={{ fontSize: 11 }}>{`${account?.slice(
+            0,
+            4
+          )}....${account?.slice(account?.length - 12)}`}</Text>
+        }
         <CopyToClipboard text={account}>
           <img
             src={copy}

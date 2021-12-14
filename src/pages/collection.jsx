@@ -30,7 +30,7 @@ const Collection = () => {
 
   const { userState, userDispatch } = useContext(UserContext);
 
-  const { chainId, account } = useWeb3React();
+  const { active, chainId, account } = useWeb3React();
 
   //HANDLING METHODS
 
@@ -245,7 +245,7 @@ const Collection = () => {
         title="My NFTs"
         description="view and list your NFTs for auction"
       />
-      {userState?.myCollections ? (
+      { !active ? <NoArtifacts title="Bidify is not connected to Ethereum." /> : userState?.myCollections ? (
         userState?.myCollections?.length > 0 ? (
           renderCards
         ) : (

@@ -22,6 +22,7 @@ import down from "../assets/icons/down.svg";
 //IMPORTING STORE COMPONENTS
 
 import { UserContext } from "../store/contexts";
+import { useWeb3React } from "@web3-react/core";
 
 const MarketPlace = () => {
   //INITIALIZING HOOKS
@@ -32,6 +33,7 @@ const MarketPlace = () => {
   const [isPriceDropdown, setIsPriceDropdown] = useState(false);
   const [isBidsDropdown, setIsBidsDropdown] = useState(false);
   const [range, setRange] = useState(0);
+  const { active } = useWeb3React();
   const options = {method: 'GET'};
 
   useEffect(() => {
@@ -174,7 +176,7 @@ const MarketPlace = () => {
 
   const renderCards = (
     <>
-      {data?.length > 0 ? (
+      { !active ? <NoArtifacts title="Bidify is not connected to Ethereum." /> : data?.length > 0 ? (
         <div className="live_auction_card_wrapper">
           {data?.map((lists, index) => {
             return <Card {...lists} key={index} />;

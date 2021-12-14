@@ -27,7 +27,7 @@ import { getListing } from "../utils/Bidify";
 const LiveAuction = () => {
   //INITIALIZING HOOKS
   const { userState, userDispatch } = useContext(UserContext);
-  const { account, chainId } = useWeb3React();
+  const { active, account, chainId } = useWeb3React()
 
   //HANDLING METHODS
 
@@ -201,7 +201,7 @@ const LiveAuction = () => {
 
   return (
     <>
-      {userState?.liveAuctions ? (
+      { !active ? <NoArtifacts title="Bidify is not connected to Ethereum." /> : userState?.liveAuctions ? (
         userState?.liveAuctions?.length > 0 ? (
           <div className="live_auctions">{renderCards}</div>
         ) : (
