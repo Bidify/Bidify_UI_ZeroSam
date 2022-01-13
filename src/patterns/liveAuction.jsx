@@ -73,31 +73,42 @@ const LiveAuction = () => {
 
   const getFetchValues = async (val) => {
     let provider;
-    if (chainId === 4) {
-      provider = new ethers.providers.InfuraProvider(
-        "rinkeby",
-        "0c8149f8e63b4b818d441dd7f74ab618"
-      );
-    } else if (chainId === 3) {
-      provider = new ethers.providers.InfuraProvider(
-        "ropsten",
-        "0c8149f8e63b4b818d441dd7f74ab618"
-      );
-    } else if (chainId === 5) {
-      provider = new ethers.providers.InfuraProvider(
-        "goerli",
-        "0c8149f8e63b4b818d441dd7f74ab618"
-      );
-    } else if (chainId === 42) {
-      provider = new ethers.providers.InfuraProvider(
-        "kovan",
-        "0c8149f8e63b4b818d441dd7f74ab618"
-      );
-    } else if (chainId === 1) {
-      provider = new ethers.providers.InfuraProvider(
-        "mainnet",
-        "0c8149f8e63b4b818d441dd7f74ab618"
-      );
+    switch (chainId) {
+      case 1:
+        provider = new ethers.providers.InfuraProvider(
+          "mainnet",
+          "0c8149f8e63b4b818d441dd7f74ab618"
+        );
+        break;
+      case 3:
+        provider = new ethers.providers.InfuraProvider(
+          "ropsten",
+          "0c8149f8e63b4b818d441dd7f74ab618"
+        );
+        break;
+      case 4:
+        provider = new ethers.providers.InfuraProvider(
+          "rinkeby",
+          "0c8149f8e63b4b818d441dd7f74ab618"
+        );
+        break;
+      case 5:
+        provider = new ethers.providers.InfuraProvider(
+          "goerli",
+          "0c8149f8e63b4b818d441dd7f74ab618"
+        );
+        break;
+      case 42:
+        provider = new ethers.providers.InfuraProvider(
+          "kovan",
+          "0c8149f8e63b4b818d441dd7f74ab618"
+        );
+        break;
+      case 1987:
+        provider = new ethers.providers.JsonRpcProvider("https://lb.rpc.egem.io")
+        break;
+      default:
+        console.log("select valid chain");
     }
 
     const ethersConfig = {

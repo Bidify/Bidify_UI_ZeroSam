@@ -63,7 +63,7 @@ const Prompt = ({
       case "success":
         return successContent;
       case "error":
-        return "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id etiam fermentum, et odio pellentesque ultrices fringilla. Sem phasellus laoreet leo dui pellentesque ultrices.te";
+        return "Transaction failed!";
       default:
         return processContent;
     }

@@ -26,7 +26,8 @@ const ScreenTemplate = ({ children }) => {
         chainId === 5 ||
         chainId === 42 ||
         chainId === 3 ||
-        chainId === 1
+        chainId === 1 ||
+        chainId === 1987
       ) {
         setWrongNetwork(false);
       } else setWrongNetwork(true);

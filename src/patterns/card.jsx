@@ -50,6 +50,17 @@ const Card = (props) => {
   // }, [isSuccess]);
 
   useEffect(async () => {
+    if(currency === "0x0000000000000000000000000000000000000000" || !currency) {
+      switch(chainId) {
+        case 1987:
+          setSymbol("EGEM")
+          break
+        default: 
+          setSymbol("ETH")
+          break
+      }
+      return
+    }
     const res = await getSymbol(currency);
     setSymbol(res);
   }, []);

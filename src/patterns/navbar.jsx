@@ -12,19 +12,21 @@ import biddingActive from "../assets/icons/biddingActive.svg";
 import myCollectionActive from "../assets/icons/myCollectionActive.svg";
 import NFTActive from "../assets/icons/NFTActive.svg";
 import logo from "../assets/logo/bidifylogo.png";
+import logo_egem from "../assets/logo/bidifylogo_egem.png";
 
 //IMPORTING STORE COMPONENTS
 
 import { UserContext } from "../store/contexts";
+import { useWeb3React } from "@web3-react/core";
 
 const Navbar = () => {
   //INITIALIZING HOOKS
-
+  const { chainId } = useWeb3React()
   const { userDispatch } = useContext(UserContext);
 
   const renderLogo = (
     <div className="logo">
-      <img src={logo} alt="logo" width={48} />
+      <img src={chainId === 1987 ? logo_egem : logo} alt="logo" width={48} />
     </div>
   );
 

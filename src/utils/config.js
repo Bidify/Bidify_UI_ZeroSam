@@ -2,11 +2,13 @@ export const BIDIFY = {
   address: {
     1: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
     3: "0xd0b5Ad6E34f06278fe0f536660cABc081F3dAc90",
-    // 4: "0x69668f58921ce2c49638c6a4059fbc498a3d55fa",  current contract
-    // 4: "0x9d97627f9bd67554510cea48df6fb0b7881ea5bc",  5minute contract
-    4: "0x683f246253934862b86b042476837a5e9b91e326",
+    4: "0x55Ae9152fc35ab804Ad78d099169499CcF00d02b",  //new deployed contract
+    // 4: "0x683f246253934862b86b042476837a5e9b91e326",
     5: "0xB0a6fc9ab6Ae98B0eCD60d24F79F2504c8389165",
     42: "0xE3Af2cf2729b5fb8339aF5F0aBEd3fbfAE095E47",
+    // 1987: "0xC0678f9CD68A91a348C4fa2B79e1e556FAb8C135" // 1 day contract
+    // 1987: "0xB5e5Ac4829fF769981b10A258A210abe71BdDCa1"    // 10 minutes contract
+    1987: "0xaD83C196cb16793E0bDd22a7Eb157cAd08e9AdeB"    // fixed fees
   },
   "abi": [
     {
@@ -1393,6 +1395,7 @@ export const BIT = { //WETH
     4: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
     42: "0x010Dd8B6EDa66127a1F2fCfB53933515D111c855",
     5: "0x89bAF37C8214bFcaeCB0586FD26E1459D40417c6",
+    1987: "0xE5fca20e55811D461800A853f444FBC6f5B72BEa"
   },
   abi: [
     {
@@ -1691,10 +1694,296 @@ export const BIT = { //WETH
     },
   ],
 };
+// export const WEGEM = {
+//   address: "0xE5fca20e55811D461800A853f444FBC6f5B72BEa",
+//   abi: [
+//     {
+//       "type": "event",
+//       "name": "Approval",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "src",
+//           "internalType": "address",
+//           "indexed": true
+//         },
+//         {
+//           "type": "address",
+//           "name": "guy",
+//           "internalType": "address",
+//           "indexed": true
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256",
+//           "indexed": false
+//         }
+//       ],
+//       "anonymous": false
+//     },
+//     {
+//       "type": "event",
+//       "name": "Deposit",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "dst",
+//           "internalType": "address",
+//           "indexed": true
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256",
+//           "indexed": false
+//         }
+//       ],
+//       "anonymous": false
+//     },
+//     {
+//       "type": "event",
+//       "name": "Transfer",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "src",
+//           "internalType": "address",
+//           "indexed": true
+//         },
+//         {
+//           "type": "address",
+//           "name": "dst",
+//           "internalType": "address",
+//           "indexed": true
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256",
+//           "indexed": false
+//         }
+//       ],
+//       "anonymous": false
+//     },
+//     {
+//       "type": "event",
+//       "name": "Withdrawal",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "src",
+//           "internalType": "address",
+//           "indexed": true
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256",
+//           "indexed": false
+//         }
+//       ],
+//       "anonymous": false
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "view",
+//       "outputs": [
+//         {
+//           "type": "uint256",
+//           "name": "",
+//           "internalType": "uint256"
+//         }
+//       ],
+//       "name": "allowance",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "",
+//           "internalType": "address"
+//         },
+//         {
+//           "type": "address",
+//           "name": "",
+//           "internalType": "address"
+//         }
+//       ]
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "nonpayable",
+//       "outputs": [
+//         {
+//           "type": "bool",
+//           "name": "",
+//           "internalType": "bool"
+//         }
+//       ],
+//       "name": "approve",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "guy",
+//           "internalType": "address"
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256"
+//         }
+//       ]
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "view",
+//       "outputs": [
+//         {
+//           "type": "uint256",
+//           "name": "",
+//           "internalType": "uint256"
+//         }
+//       ],
+//       "name": "balanceOf",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "",
+//           "internalType": "address"
+//         }
+//       ]
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "view",
+//       "outputs": [
+//         {
+//           "type": "uint8",
+//           "name": "",
+//           "internalType": "uint8"
+//         }
+//       ],
+//       "name": "decimals",
+//       "inputs": []
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "payable",
+//       "outputs": [],
+//       "name": "deposit",
+//       "inputs": []
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "view",
+//       "outputs": [
+//         {
+//           "type": "string",
+//           "name": "",
+//           "internalType": "string"
+//         }
+//       ],
+//       "name": "name",
+//       "inputs": []
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "view",
+//       "outputs": [
+//         {
+//           "type": "string",
+//           "name": "",
+//           "internalType": "string"
+//         }
+//       ],
+//       "name": "symbol",
+//       "inputs": []
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "view",
+//       "outputs": [
+//         {
+//           "type": "uint256",
+//           "name": "",
+//           "internalType": "uint256"
+//         }
+//       ],
+//       "name": "totalSupply",
+//       "inputs": []
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "nonpayable",
+//       "outputs": [
+//         {
+//           "type": "bool",
+//           "name": "",
+//           "internalType": "bool"
+//         }
+//       ],
+//       "name": "transfer",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "dst",
+//           "internalType": "address"
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256"
+//         }
+//       ]
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "nonpayable",
+//       "outputs": [
+//         {
+//           "type": "bool",
+//           "name": "",
+//           "internalType": "bool"
+//         }
+//       ],
+//       "name": "transferFrom",
+//       "inputs": [
+//         {
+//           "type": "address",
+//           "name": "src",
+//           "internalType": "address"
+//         },
+//         {
+//           "type": "address",
+//           "name": "dst",
+//           "internalType": "address"
+//         },
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256"
+//         }
+//       ]
+//     },
+//     {
+//       "type": "function",
+//       "stateMutability": "nonpayable",
+//       "outputs": [],
+//       "name": "withdraw",
+//       "inputs": [
+//         {
+//           "type": "uint256",
+//           "name": "wad",
+//           "internalType": "uint256"
+//         }
+//       ]
+//     }
+//   ]
+// }
 
 export const URLS = {
   1: "https://mainnet.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
   3: "https://ropsten.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
   4: "https://rinkeby.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
   5: "https://goerli.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
+  1987: "https://lb.rpc.egem.io"
 };

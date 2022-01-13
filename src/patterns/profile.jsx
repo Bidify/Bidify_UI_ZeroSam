@@ -23,6 +23,7 @@ import { UserContext } from "../store/contexts";
 import { useWeb3React } from "@web3-react/core";
 import { BIT, URLS } from "../utils/config";
 import { useEffect } from "react";
+import { getSymbol } from "../utils/getCurrencySymbol";
 
 const upcomingFeatures = [
   "Bidify Tutorials – Q4 2021",
@@ -59,11 +60,16 @@ const networkData = [
     name: "KOVAN",
     color: "#27F805",
   },
+  {
+    id: "1987",
+    name: "ETHERGEM",
+    color: "#dfdfdf"
+  }
 ];
 
 const Profile = () => {
   //INITIALIZING HOOKS
-
+  const [currency, setCurrency] = useState(null);
   const { userState, userDispatch } = useContext(UserContext);
   const { account, active, chainId } = useWeb3React();
 
@@ -71,11 +77,31 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [toggleSwitchNetwork, setToggleSwitchNetwork] = useState(false);
   const [balance, setBalance] = useState("");
+  const [symbol, setSymbol] = useState("");
   const [networkName, setNetworkName] = useState();
 
   useEffect(async () => {
-    if (account) setBalance(await getBalance());
-  }, [account]);
+    if (account) {
+      if(!currency)
+      {
+        const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
+        let _balance = await web3.eth.getBalance(account); //Will give value in.
+        _balance = web3.utils.fromWei(_balance);
+        setBalance(_balance)
+        switch(chainId) {
+          case 1987: 
+            setSymbol("EGEM");
+            break;
+          default:
+            setSymbol("ETH");
+            break;
+        }
+        return
+      }
+      setBalance(await getBalance());
+      setSymbol(await getSymbol(BIT.address[chainId]));
+    }
+  }, [account, chainId]);
 
   // const handleFreeToken = async () => {
   //   setIsLoading(true);
@@ -149,6 +175,9 @@ const Profile = () => {
       case 42:
         await switchNetwork(Number(42));
         break;
+      case 1987:
+        await switchNetwork(Number(1987));
+        break;
       default:
         console.log("select valid chain");
     }
@@ -188,6 +217,9 @@ const Profile = () => {
             break;
           case 42:
             setNetworkName("Kovan");
+            break;
+          case 1987:
+            setNetworkName("Ethergem");
             break;
           default:
             break;
@@ -272,7 +304,7 @@ const Profile = () => {
           copied
         </span>
       </Text>
-      <Text style={{ fontWeight: 600 }}>{balance ? balance : 0} WETH</Text>
+      <Text style={{ fontWeight: 600 }}>{balance ? balance.toString().slice(0,7) : 0} {symbol ? symbol : ""}</Text>
     </div>
   );
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Web3 from "web3";
@@ -21,7 +21,7 @@ import pauseImg from "../assets/icons/pause-circle.svg";
 
 //IMPORTING UTILITY PACKGAES
 
-import { BIT, BIDIFY } from "../utils/config";
+import { BIDIFY } from "../utils/config";
 import { getDecimals, atomic } from "../utils/Bidify";
 import { useWeb3React } from "@web3-react/core";
 import { ERC721, ERC1155 } from "../utils/config";
@@ -42,16 +42,28 @@ const CollectionCard = (props) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isPlay, setIsPlay] = useState(false);
-
+  const [symbol, setSymbol] = useState("")
   const initialValues = {
     price: "",
     days: "",
     platform,
     token,
-    currency: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
-    // currency: BIT.address[chainId],
+    // currency: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
+    currency: null,
   };
 
+  useEffect(async () => {
+    if (account) {
+      switch(chainId) {
+        case 1987: 
+          setSymbol("EGEM");
+          break;
+        default:
+          setSymbol("ETH");
+          break;
+      }
+    }
+  })
   const validationSchema = Yup.object({
     price: Yup.number()
       .typeError("price must be a number")
@@ -66,14 +78,13 @@ const CollectionCard = (props) => {
 
   const onSubmit = async (values, onSubmitProps) => {
     const { currency, platform, token, price, days } = values;
-    console.log(token, price, days)
     setIsModal(false);
     setIsLoading(true);
     setProcessContent(
       "Please allow https://bidify.org permission within your wallet when prompted, there will be a small fee for this…"
     );
     try {
-      await signList({ currency, platform, token, price, days, isERC721 });
+      await signList({ platform, token, price, days, isERC721 });
       setProcessContent(
         "Confirm the second transaction to allow your NFT to be listed, there will be another small network fee."
       );
@@ -98,15 +109,10 @@ const CollectionCard = (props) => {
   };
 
   async function signList({
-    currency,
     platform,
     token,
     isERC721,
   }) {
-
-    if (!currency) {
-      currency = "0x0000000000000000000000000000000000000000";
-    }
 
     const web3 = new Web3(window.ethereum);
     if(isERC721)
@@ -137,6 +143,7 @@ const CollectionCard = (props) => {
     );
     // return token;
     const tokenNum = isERC721 ? token : new Web3(window.ethereum).utils.hexToNumberString(token);
+    // return console.log("before list", atomic(price.toString(), decimals).toString())
     try{
       return await Bidify.methods
       .list(
@@ -144,7 +151,7 @@ const CollectionCard = (props) => {
         platform,
         tokenNum,
         atomic(price.toString(), decimals),
-        Number(days) * 144,
+        Number(days),
         "0x0000000000000000000000000000000000000000",
         allowMarketplace,
         isERC721
@@ -167,7 +174,7 @@ const CollectionCard = (props) => {
           <Text>Initial Bid Amount</Text>
           <div className="form_input">
             <Field type="number" name="price" id="price" />
-            <Text style={{ color: "#F79420" }}>WETH</Text>
+            <Text style={{ color: "#F79420" }}>{symbol}</Text>
           </div>
           <ErrorMessage
             name="price"

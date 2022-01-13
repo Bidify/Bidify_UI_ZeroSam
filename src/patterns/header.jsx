@@ -12,6 +12,7 @@ import { Text } from "../components";
 //IMPORTING MEDIA ASSETS
 
 import logo from "../assets/logo/bidifylogo.png";
+import logo_egem from "../assets/logo/bidifylogo_egem.png";
 
 import search from "../assets/icons/search.svg";
 import hamburger from "../assets/icons/hamburger.svg";
@@ -20,10 +21,11 @@ import outline_close from "../assets/icons/outline_close.svg";
 //IMPORTING STORE COMPONENTS
 
 import { UserContext } from "../store/contexts";
+import { useWeb3React } from "@web3-react/core";
 
 const Header = ({ title, description }) => {
   //INITIALIZING HOOKS
-
+  const { chainId } = useWeb3React();
   const { userState, userDispatch } = useContext(UserContext);
 
   const searchRef = useRef();
@@ -50,7 +52,7 @@ const Header = ({ title, description }) => {
       }
     >
       <Link to="/" className="logo">
-        <img src={logo} alt="logo" width={48} />
+        <img src={chainId === 1987 ? logo_egem : logo} alt="logo" width={48} />
       </Link>
       <div className="content">
         <Text variant="primary">{title}</Text>
