@@ -6,6 +6,8 @@ import React, { useEffect, useState } from "react";
 // import loader from "../assets/icons/loader.svg";
 import ethLoader from "../assets/icons/loader_3d.gif";
 import egemLoader from "../assets/icons/loader_3d_egem.gif";
+import avaxLoader from "../assets/icons/loader_3d_avax.gif";
+import maticLoader from "../assets/icons/loader_3d_matic.gif";
 
 const Loader = () => {
   const [loadGif, setLoadGif] = useState(ethLoader);
@@ -19,9 +21,15 @@ const Loader = () => {
         case 1987:
           setLoadGif(egemLoader)
           break;
+        case 43113: case 43114:
+          setLoadGif(avaxLoader);
+          break;
+        case 137: case 80001:
+          setLoadGif(maticLoader)
+          break;
       }
     }
-  }, [account])
+  }, [account, chainId])
   return (
     <div className="loader">
       <img src={loadGif} alt="loader" style={{ width: "8em" }} />

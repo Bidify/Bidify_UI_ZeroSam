@@ -13,6 +13,8 @@ import { Text } from "../components";
 
 import logo from "../assets/logo/bidifylogo.png";
 import logo_egem from "../assets/logo/bidifylogo_egem.png";
+import logo_avax from "../assets/logo/bidifylogo_avax.png";
+import logo_matic from "../assets/logo/bidifylogo_matic.png";
 
 import search from "../assets/icons/search.svg";
 import hamburger from "../assets/icons/hamburger.svg";
@@ -52,7 +54,8 @@ const Header = ({ title, description }) => {
       }
     >
       <Link to="/" className="logo">
-        <img src={chainId === 1987 ? logo_egem : logo} alt="logo" width={48} />
+        <img src={chainId === 1987 ? logo_egem : chainId === 43114 ? logo_avax : (chainId === 137 || chainId === 80001) ? logo_matic : logo} alt="logo" width={48} />
+        <Text variant="primary">{chainId === 1987 ? "EGEM" : chainId === 43114 ? "AVAX" : (chainId === 137 || chainId === 80001) ? "MATIC" : "ETH"}</Text>
       </Link>
       <div className="content">
         <Text variant="primary">{title}</Text>

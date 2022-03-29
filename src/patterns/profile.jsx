@@ -15,7 +15,7 @@ import "../styles/patterns/profile.scss";
 import metamask from "../assets/logo/metamask.svg";
 import notification from "../assets/icons/notification.svg";
 import copy from "../assets/icons/copy.svg";
-import refresh from "../assets/icons/refresh.svg";
+import refresh from "../assets/icons/youtube.svg";
 
 //IMPORTING STORE COMPONENTS
 
@@ -24,6 +24,7 @@ import { useWeb3React } from "@web3-react/core";
 import { BIT, URLS } from "../utils/config";
 import { useEffect } from "react";
 import { getSymbol } from "../utils/getCurrencySymbol";
+import { injected } from "../utils/connector";
 
 const upcomingFeatures = [
   "Bidify Tutorials – Q4 2021",
@@ -37,44 +38,59 @@ const upcomingFeatures = [
 const networkData = [
   {
     id: "1",
-    name: "MAINNET",
+    name: "ETHEREUM",
     color: "#EA6969",
   },
-  {
-    id: "3",
-    name: "ROPSTEN",
-    color: "#9F9DF8",
-  },
+  // {
+  //   id: "3",
+  //   name: "ROPSTEN",
+  //   color: "#9F9DF8",
+  // },
   {
     id: "4",
     name: "RINKEBY",
     color: "#F4DD62",
   },
-  {
-    id: "5",
-    name: "GOERLI",
-    color: "#7AD7F4",
-  },
-  {
-    id: "42",
-    name: "KOVAN",
-    color: "#27F805",
-  },
+  // {
+  //   id: "5",
+  //   name: "GOERLI",
+  //   color: "#7AD7F4",
+  // },
+  // {
+  //   id: "42",
+  //   name: "KOVAN",
+  //   color: "#27F805",
+  // },
   {
     id: "1987",
     name: "ETHERGEM",
     color: "#dfdfdf"
-  }
+  },
+  {
+    id: "43114",
+    name: "AVALANCHE",
+    color: "#de4437"
+  },
+  {
+    id: "137",
+    name: "POLYGON",
+    color: "#8247e5"
+  },
+  // {
+  //   id: "80001",
+  //   name: "MUMBAI",
+  //   color: "#8247e5"
+  // }
 ];
 
 const Profile = () => {
   //INITIALIZING HOOKS
   const [currency, setCurrency] = useState(null);
   const { userState, userDispatch } = useContext(UserContext);
-  const { account, active, chainId } = useWeb3React();
+  const { account, active, activate, chainId } = useWeb3React();
 
   const [isCopied, setIsCopied] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [toggleSwitchNetwork, setToggleSwitchNetwork] = useState(false);
   const [balance, setBalance] = useState("");
   const [symbol, setSymbol] = useState("");
@@ -89,6 +105,12 @@ const Profile = () => {
         _balance = web3.utils.fromWei(_balance);
         setBalance(_balance)
         switch(chainId) {
+          case 43113: case 43114:
+            setSymbol("AVAX");
+            break;
+          case 137: case 80001:
+            setSymbol("MATIC");
+            break;
           case 1987: 
             setSymbol("EGEM");
             break;
@@ -134,6 +156,7 @@ const Profile = () => {
   // };
 
   const switchNetwork = async (_chainId) => {
+    // console.log("herer", activate)
     try {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
@@ -142,6 +165,7 @@ const Profile = () => {
       setToggleSwitchNetwork(false);
     } catch (error) {
       // This error code indicates that the chain has not been added to MetaMask.
+      console.log("error", error)
       if (error.code === 4902) {
         try {
           await window.ethereum.request({
@@ -158,8 +182,14 @@ const Profile = () => {
     }
   };
 
-  const handleSwitchNetwork = async (chainId) => {
-    switch (Number(chainId)) {
+  const handleSwitchNetwork = async (_chainId) => {
+    // console.log(provider)
+    // if(chainId === _chainId) {
+    //   console.log("heyyeyeyeyrururuey")
+    // }
+    // else
+    activate(injected)
+    switch (Number(_chainId)) {
       case 1:
         await switchNetwork(Number(1));
         break;
@@ -177,6 +207,15 @@ const Profile = () => {
         break;
       case 1987:
         await switchNetwork(Number(1987));
+        break;
+      case 43114:
+        await switchNetwork(Number(43114));
+        break;
+      case 137:
+        await switchNetwork(Number(137));
+        break;
+      case 80001:
+        await switchNetwork(Number(80001));
         break;
       default:
         console.log("select valid chain");
@@ -200,17 +239,22 @@ const Profile = () => {
   };
 
   useEffect(async () => {
+    if(!account){
+      setBalance("")
+      setSymbol("")
+      setNetworkName("")
+    }
     try {
       if (active) {
         switch (chainId) {
           case 1:
-            setNetworkName("Mainnet");
+            setNetworkName("ETHEREUM");
             break;
           case 3:
             setNetworkName("Ropsten");
             break;
           case 4:
-            setNetworkName("Rinkeby");
+            setNetworkName("RINKEBY");
             break;
           case 5:
             setNetworkName("Goerli");
@@ -219,7 +263,13 @@ const Profile = () => {
             setNetworkName("Kovan");
             break;
           case 1987:
-            setNetworkName("Ethergem");
+            setNetworkName("ETHERGEM");
+            break;
+          case 43113: case 43114:
+            setNetworkName("AVALANCHE");
+            break;
+          case 137: case 80001:
+            setNetworkName("POLYGON");
             break;
           default:
             break;
@@ -270,20 +320,22 @@ const Profile = () => {
       <div>
         <div style={{ position: "relative" }}>
           <Text>Metamask</Text>
-          <Text>
-            <Text component="span">Connected to {networkName}</Text>
-            <img
-              src={refresh}
-              alt="refresh"
-              width={24}
-              style={{ cursor: "pointer" }}
-              onClick={() => setToggleSwitchNetwork(!toggleSwitchNetwork)}
-            />
+          <Text style={{marginTop: 8}}>
+            <Text component="span"  className="net-selection" onClick={() => setToggleSwitchNetwork(!toggleSwitchNetwork)} >Select Network<i></i></Text>
+            <a href="https://youtu.be/F74ayyxlRYk" tarkget="_blank" rel="noreferrer" style={{display: "flex"}}>
+              <img
+                src={refresh}
+                alt="tutorial"
+                style={{ cursor: "pointer", width: 22 }}
+              />
+            </a>
+            
           </Text>
           {toggleSwitchNetwork && renderSwitchNetwork}
         </div>
         <img src={metamask} alt="metamask logo" width={35} />
       </div>
+      <Text component="span" variant="primary">{networkName}</Text>
       <Text className="account_info">
         {
           !account ? <Text component="span" style={{fontSize: 11}}>No account</Text> : <Text component="span" style={{ fontSize: 11 }}>{`${account?.slice(

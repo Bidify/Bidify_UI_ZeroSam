@@ -105,6 +105,18 @@ const MyBiddings = () => {
       case 1987:
         provider = new ethers.providers.JsonRpcProvider("https://lb.rpc.egem.io")
         break;
+      case 43113:
+        provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc")
+        break;
+      case 43114:
+        provider = new ethers.providers.JsonRpcProvider("https://api.avax.network/ext/bc/C/rpc")
+        break;
+      case 137:
+        provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com")
+        break;
+      case 80001:
+        provider = new ethers.providers.JsonRpcProvider("https://matic-testnet-archive-rpc.bwarelabs.com")
+        break;
       default:
         console.log("select valid chain");
     }

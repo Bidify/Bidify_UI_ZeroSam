@@ -36,12 +36,13 @@ import pauseImg from "../assets/icons/pause-circle.svg";
 
 //IMPORTING UTILITY PACKAGES
 
-import { BIDIFY, URLS } from "../utils/config";
+import { baseUrl, BIDIFY, URLS } from "../utils/config";
+import axios from "axios";
 
 const DetailsPage = () => {
   //INITIALIZING HOOKS
 
-  const params = useParams();
+  const { id } = useParams();
   const videoRef = useRef(null);
 
   const [isVideo, setIsVideo] = useState(false);
@@ -53,14 +54,20 @@ const DetailsPage = () => {
   const { chainId, account } = useWeb3React();
   const [isPlay, setIsPlay] = useState(false);
   const [yourBid, setYourBid] = useState(0);
+  // const isUser = account?.toLocaleLowerCase() === creator?.toLocaleLowerCase();
   //HANDLING METHODS
 
   useEffect(() => {
-    const { id } = params;
-    setParamId(id);
-    getLists(id);
+    // const { id } = params;
+    // setParamId(id);
+    // getLists(id);
+    getData()
   }, []);
-
+  const getData = async () => {
+    const response = await axios.get(`${baseUrl}/auctions/${id}`)
+    console.log(response.data)
+    setData([response.data])
+  }
   const getLists = async (id) => {
     //setData();
     //const Bidify = new web3.eth.Contract(BIDIFY.abi, BIDIFY.address);
@@ -130,6 +137,18 @@ const DetailsPage = () => {
       case 1987:
         provider = new ethers.providers.JsonRpcProvider("https://lb.rpc.egem.io")
         break;
+      case 43113:
+        provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc")
+        break;
+      case 43114:
+        provider = new ethers.providers.JsonRpcProvider("https://api.avax.network/ext/bc/C/rpc")
+        break;
+      case 137:
+        provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com")
+        break;
+      case 80001:
+        provider = new ethers.providers.JsonRpcProvider("https://matic-testnet-archive-rpc.bwarelabs.com")
+        break;
       default:
         console.log("select valid chain");
     }
@@ -189,7 +208,7 @@ const DetailsPage = () => {
     const filteredData = results.filter((val) => val.id === String(id));
     setData(filteredData);
   };
-  
+
   const handleFinishAuction = async (id) => {
     setIsLoading(true);
     try {
@@ -214,17 +233,25 @@ const DetailsPage = () => {
     }
   };
 
+  const getDetailFromId = async (id) => {
+    const detail = await getListing(id.toString())
+    const fetchedValue = await getFetchValues(detail)
+    return { ...fetchedValue, network: chainId }
+  }
   const handleBidMethod = async (id, amount) => {
     setIsLoading(true);
     try {
       await signBid(id, amount);
       await bid(id, amount);
+      const updateData = await getDetailFromId(id);
+      await axios.put(`${baseUrl}/auctions/${id}`, updateData)
+      await getData()
       setIsLoading(false);
       setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-        window.location.reload();
-      }, 3000);
+      // setTimeout(() => {
+      //   setIsSuccess(false);
+      //   window.location.reload();
+      // }, 3000);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -257,7 +284,7 @@ const DetailsPage = () => {
                 </div>
                 <div className="content_footer">
                   {account.toLocaleLowerCase() ===
-                  val.creator.toLocaleLowerCase() ? (
+                    val.creator.toLocaleLowerCase() ? (
                     <Button
                       variant="primary"
                       onClick={() => handleFinishAuction(val.id)}
@@ -306,26 +333,26 @@ const DetailsPage = () => {
                 <div className="content_footer">
                   {account.toLocaleLowerCase() !==
                     val.creator.toLocaleLowerCase() && (
-                    <>
-                      <Text
-                        variant="primary"
-                        style={{
-                          fontSize: 14,
-                          marginBottom: 10,
-                          textAlign: "start",
-                        }}
-                      >
-                        Bid amount
-                      </Text>
-                      <div className="form_input">
-                        {/* <Text variant="primary">{val.nextBid}</Text> */}
-                        <input className="bid-input" type="number" defaultValue={val.nextBid} onChange={(e) => {setYourBid(e.target.value)}} />
-                        <Text style={{ color: "#F79420" }}>{val.symbol}</Text>
-                      </div>
-                    </>
-                  )}
+                      <>
+                        <Text
+                          variant="primary"
+                          style={{
+                            fontSize: 14,
+                            marginBottom: 10,
+                            textAlign: "start",
+                          }}
+                        >
+                          Bid amount
+                        </Text>
+                        <div className="form_input">
+                          {/* <Text variant="primary">{val.nextBid}</Text> */}
+                          <input className="bid-input" type="number" defaultValue={val.nextBid} onChange={(e) => { setYourBid(e.target.value) }} />
+                          <Text style={{ color: "#F79420" }}>{val.symbol}</Text>
+                        </div>
+                      </>
+                    )}
                   {account.toLocaleLowerCase() ===
-                  val.creator.toLocaleLowerCase() ? (
+                    val.creator.toLocaleLowerCase() ? (
                     <Button
                       variant="secondary"
                       style={{ pointerEvents: "none" }}
@@ -335,9 +362,10 @@ const DetailsPage = () => {
                   ) : (
                     <Button
                       variant="primary"
+                      style={{ pointerEvents: account?.toLocaleLowerCase() === val.highBidder?.toLocaleLowerCase() && "none"}}
                       onClick={() => handleBidMethod(val.id, yourBid ? yourBid : val.nextBid)}
                     >
-                      Place Your Bid
+                      {account?.toLocaleLowerCase() !== val.highBidder?.toLocaleLowerCase() ? "Place Your Bid" : "You are the highest bidder"}
                     </Button>
                   )}
 

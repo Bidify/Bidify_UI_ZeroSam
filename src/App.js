@@ -16,8 +16,17 @@ import PageNotFound from "./pages/pageNotFound";
 import { useEagerConnect } from "./hooks/hooks";
 import { useInactiveListener } from "./hooks/hooks";
 import MyBiddings from "./pages/myBiddings";
+import GA from './utils/GoogleAnalytics'
+// import ReactGA from 'react-ga';
 
 function App() {
+  // useEffect(() => {
+  //   const setGA = () => {
+  //     ReactGA.initialize('UA-220342809-1');
+  //     ReactGA.pageview('Init page view');
+  //   };
+  //   setGA();
+  // }, [])
   const context = useWeb3React();
   const { connector } = context;
 
@@ -37,6 +46,7 @@ function App() {
 
   return (
     <Router>
+      { GA.init() && <GA.RouteTracker /> }
       <Navbar />
       <Profile />
       <Switch>

@@ -26,6 +26,7 @@ const UserReducer = (state = initialState, action) => {
         userBiddings: payload?.userBiddings,
       };
     case actionType.MY_COLLECTIONS:
+      if(state.myCollections === payload?.results) return state;
       return {
         ...state,
         myCollections: payload?.results,

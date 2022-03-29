@@ -21,19 +21,48 @@ import { UserContext } from "../store/contexts";
 
 //IMPORTING UTILITY PACKAGES
 
-import { BIDIFY, URLS } from "../utils/config";
-import { getListing } from "../utils/Bidify";
+import { BIDIFY, URLS, baseUrl, snowApi, getLogUrl } from "../utils/config";
+import { getDecimals, getListing, unatomic } from "../utils/Bidify";
+
+import axios from "axios";
 
 const LiveAuction = () => {
   //INITIALIZING HOOKS
   const { userState, userDispatch } = useContext(UserContext);
-  const { active, account, chainId } = useWeb3React()
+  const { active, account, chainId, library } = useWeb3React()
 
+  const [update, setUpdate] = useState([])
   //HANDLING METHODS
-
+  const getAuctions = () => {
+    axios.get(`${baseUrl}/auctions`, { params: { chainId: chainId } })
+      .then(response => {
+        const results = response.data
+        console.log("database", results)
+        // const filteredData = results.filter((val) => val.paidOut !== true);
+        const userBiddings = results.filter((value) =>
+          value.bids.some(
+            (val) =>
+              val.bidder?.toLocaleLowerCase() === account?.toLocaleLowerCase()
+          )
+        );
+        userDispatch({
+          type: "LIVE_AUCTION_NFT",
+          payload: { results: results, userBiddings, isFetched: true },
+        });
+      })
+      .catch(error => {
+        console.log(error.message)
+      })
+  }
   useEffect(() => {
-    if (!userState?.isLiveAuctionFetched) getLists();
-  }, []);
+    if (!active) return
+    // getLists();
+    userDispatch({
+      type: "LIVE_AUCTION_NFT",
+      payload: { results: undefined },
+    });
+    getAuctions()
+  }, [active, chainId]);
 
   const getLists = async () => {
     userDispatch({
@@ -45,23 +74,99 @@ const LiveAuction = () => {
 
     const totalAuction = await getLogs();
     let Lists = [];
+    // console.log("totalAuction", totalAuction)
     for (let i = 0; i < totalAuction; i++) {
-      const result = await getListing(i.toString());
+      let result
+      if(chainId === 43114 || chainId === 137) result = await getListingDetail(i)
+      else result = await getListing(i.toString());
       Lists[i] = result;
     }
+    console.log("blockchain data", Lists)
     getDetails(Lists);
   };
+
+  const getListingDetail = async (id) => {
+    const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
+    const raw = await bidify.getListing(id.toString())
+    const nullIfZeroAddress = (value) => {
+      if (value === "0x0000000000000000000000000000000000000000") {
+        return null;
+      }
+      return value;
+    };
+
+    let currency = nullIfZeroAddress(raw.currency);
+
+    let highBidder = nullIfZeroAddress(raw.highBidder);
+    let currentBid = raw.price;
+    let nextBid = await bidify.getNextBid(id.toString());
+    let decimals = await getDecimals(currency);
+    // console.log("compareing", currentBid.toString() === nextBid.toString(), currentBid, nextBid)
+    if (currentBid.toString() === nextBid.toString()) {
+      currentBid = null;
+    } else {
+      currentBid = unatomic(currentBid.toString(), decimals);
+    }
+
+    let referrer = nullIfZeroAddress(raw.referrer);
+    let marketplace = nullIfZeroAddress(raw.marketplace);
+
+    let bids = [];
+    const web3 = new Web3(window.ethereum)
+    const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
+    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
+    const logs = ret.data.result
+    for (let bid of logs) {
+      bids.push({
+        bidder: "0x" + bid.topics[2].substr(-40),
+        price: unatomic(
+          new web3.utils.BN(bid.data.substr(2), "hex").toString(),
+          decimals
+        ),
+      });
+    }
+    return {
+      id,
+      creator: raw.creator,
+      currency,
+      platform: raw.platform,
+      token: raw.token.toString(),
+
+      highBidder,
+      currentBid,
+      nextBid: unatomic(nextBid.toString(), decimals),
+
+      referrer,
+      allowMarketplace: raw.allowMarketplace,
+      marketplace,
+
+      endTime: raw.endTime.toString(),
+      paidOut: raw.paidOut,
+      isERC721: raw.isERC721,
+
+      bids,
+    };
+  }
 
   const getLogs = async () => {
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
     const topic0 =
       "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748";
-    const logs = await web3.eth.getPastLogs({
-      fromBlock: "earliest",
-      toBlock: "latest",
-      address: BIDIFY.address[chainId],
-      topics: [topic0],
-    });
+    let logs = [];
+    try {
+      if(chainId === 43114 || chainId === 137) {
+        const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
+        logs = ret.data.result
+      }
+      else logs = await web3.eth.getPastLogs({
+        fromBlock: "earliest",
+        toBlock: "latest",
+        address: BIDIFY.address[chainId],
+        topics: [topic0],
+      });
+    } catch (e) {
+      console.log(e.message)
+    }
 
     let totalLists = 0;
     for (let log of logs) {
@@ -107,6 +212,18 @@ const LiveAuction = () => {
       case 1987:
         provider = new ethers.providers.JsonRpcProvider("https://lb.rpc.egem.io")
         break;
+      case 43113:
+        provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc")
+        break;
+      case 43114:
+        provider = new ethers.providers.JsonRpcProvider("https://api.avax.network/ext/bc/C/rpc")
+        break;
+      case 80001:
+        provider = new ethers.providers.JsonRpcProvider("https://matic-testnet-archive-rpc.bwarelabs.com")
+        break;
+      case 137:
+        provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com")
+        break;
       default:
         console.log("select valid chain");
     }
@@ -115,7 +232,7 @@ const LiveAuction = () => {
       ethers: { Contract },
       provider: provider,
     };
-    
+
     const fetcher = ["ethers", ethersConfig];
 
     function ipfsUrl(cid, path = "") {
@@ -161,6 +278,7 @@ const LiveAuction = () => {
   const getDetails = async (lists) => {
     const unsolvedPromises = lists.map((val) => getFetchValues(val));
     const results = await Promise.all(unsolvedPromises);
+    setUpdate(results.map(item => { return { ...item, network: chainId } }))
     const filteredData = results.filter((val) => val.paidOut !== true);
     const userBiddings = results.filter((value) =>
       value.bids.some(
@@ -187,13 +305,17 @@ const LiveAuction = () => {
   //     </div>
   //   </div>
   // );
-
+  const handleUpdate = async () => {
+    if (update.length === 0) return
+    const res = await axios.post(`${baseUrl}/admin`, update)
+  }
   const renderCards = (
     <>
+      {account === "0x484D53603331e4030439c3C58f51f9d433Df1F39" && <button onClick={handleUpdate}>update database</button>}
       {userState?.searchResults?.length === undefined ? (
         <div className="live_auction_card_wrapper">
           {userState?.liveAuctions?.map((lists, index) => {
-            return <Card {...lists} getLists={getLists} key={index} />;
+            return <Card {...lists} getLists={getAuctions} key={index} getFetchValues={getFetchValues} />;
           })}
         </div>
       ) : userState?.searchResults?.length === 0 ? (
@@ -203,7 +325,7 @@ const LiveAuction = () => {
       ) : (
         <div className="live_auction_card_wrapper">
           {userState?.searchResults?.map((lists, index) => {
-            return <Card {...lists} getLists={getLists} key={index} />;
+            return <Card {...lists} getLists={getAuctions} key={index} getFetchValues={getFetchValues} />;
           })}
         </div>
       )}
@@ -212,7 +334,7 @@ const LiveAuction = () => {
 
   return (
     <>
-      { !active ? <NoArtifacts title="Bidify is not connected to Ethereum." /> : userState?.liveAuctions ? (
+      {!active ? <NoArtifacts title="Bidify is not connected to Ethereum." /> : userState?.liveAuctions ? (
         userState?.liveAuctions?.length > 0 ? (
           <div className="live_auctions">{renderCards}</div>
         ) : (

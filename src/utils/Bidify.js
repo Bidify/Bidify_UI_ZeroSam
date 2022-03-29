@@ -268,7 +268,7 @@ export function atomic(value, decimals) {
 }
 
 // Convert to a human readable value
-function unatomic(value, decimals) {
+export function unatomic(value, decimals) {
   value = value.padStart(decimals + 1, "0");
   let temp =
     value.substr(0, value.length - decimals) +
@@ -539,6 +539,7 @@ export async function getListing(id) {
 
     endTime: raw.endTime,
     paidOut: raw.paidOut,
+    isERC721: raw.isERC721,
 
     bids,
   };
@@ -555,12 +556,15 @@ export async function getListing(id) {
 export async function signBid(id, amount) {
   // return;
   
+  const from = window?.ethereum?.selectedAddress;
   const chain_id = await chainId;
   let currency = (await getListing(id)).currency;
   let balance;
+  // console.log("sign bid", from)
   if(!currency) {
     balance = await web3.eth.getBalance(from)
     balance = web3.utils.fromWei(balance)
+    // console.log(balance)
   }
   else {
     const Bidify = await getBidify();
@@ -596,16 +600,18 @@ export async function bid(id, amount) {
   let currency = (await getListing(id)).currency;
   let decimals = await getDecimals(currency)
   const Bidify = await getBidify();
+  const from = window?.ethereum?.selectedAddress
   // return console.log("handle bid", id, atomic(amount, decimals).toString())
+  // console.log("amount", atomic(amount, decimals).toString())
   if (currency) {
     await Bidify.methods
       .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals))
-      .send({ from: window?.ethereum?.selectedAddress });
+      .send({ from: from });
   } else {
     await Bidify.methods
       .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals))
       .send({
-        from: window?.ethereum?.selectedAddress,
+        from: from,
         value: atomic(amount, decimals),
       });
   }

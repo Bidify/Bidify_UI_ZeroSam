@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import Web3 from "web3";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import axios from "axios"
 //IMPORTING STYLESHEET
 
 import "../styles/patterns/card.scss";
@@ -21,15 +22,16 @@ import pauseImg from "../assets/icons/pause-circle.svg";
 
 //IMPORTING UTILITY PACKGAES
 
-import { BIDIFY } from "../utils/config";
-import { getDecimals, atomic } from "../utils/Bidify";
+import { baseUrl, BIDIFY, getLogUrl, snowApi, URLS } from "../utils/config";
+import { getDecimals, atomic, getListing, unatomic } from "../utils/Bidify";
 import { useWeb3React } from "@web3-react/core";
 import { ERC721, ERC1155 } from "../utils/config";
+import { ethers } from "ethers";
 
 const CollectionCard = (props) => {
-  const { name, description, image, platform, token, getDetails, isERC721 } = props;
+  const { name, description, image, platform, token, getDetails, isERC721, getFetchValues } = props;
 
-  const { chainId, account } = useWeb3React();
+  const { chainId, account, library } = useWeb3React();
   const videoRef = useRef(null);
 
   // const account = '0x0B172a4E265AcF4c2E0aB238F63A44bf29bBd158'
@@ -54,8 +56,14 @@ const CollectionCard = (props) => {
 
   useEffect(async () => {
     if (account) {
-      switch(chainId) {
-        case 1987: 
+      switch (chainId) {
+        case 43113: case 43114:
+          setSymbol("AVAX");
+          break;
+        case 137: case 80001:
+          setSymbol("MATIC");
+          break;
+        case 1987:
           setSymbol("EGEM");
           break;
         default:
@@ -77,6 +85,7 @@ const CollectionCard = (props) => {
   });
 
   const onSubmit = async (values, onSubmitProps) => {
+    // return console.log("testing", await getDetailFromId(0))
     const { currency, platform, token, price, days } = values;
     setIsModal(false);
     setIsLoading(true);
@@ -89,9 +98,9 @@ const CollectionCard = (props) => {
         "Confirm the second transaction to allow your NFT to be listed, there will be another small network fee."
       );
       await list({ currency, platform, token, price, days, isERC721 });
+      getDetails();
       setIsLoading(false);
       setIsSuccess(true);
-      getDetails();
       setTimeout(() => {
         setIsSuccess(false);
       }, 3000);
@@ -115,16 +124,43 @@ const CollectionCard = (props) => {
   }) {
 
     const web3 = new Web3(window.ethereum);
-    if(isERC721)
+    if (isERC721)
       await new web3.eth.Contract(ERC721.abi, platform).methods
         .approve(BIDIFY.address[chainId], token)
         .send({ from: account });
-    else 
+    else
       await new web3.eth.Contract(ERC1155.abi, platform).methods
         .setApprovalForAll(BIDIFY.address[chainId], true)
         .send({ from: account });
   }
+  const getLogs = async () => {
+    const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
+    const topic0 =
+      "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748";
+    let logs = [];
+    try {
+      if(chainId === 43114 || chainId === 137) {
+        const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
+        logs = ret.data.result
+      }
+      else logs = await web3.eth.getPastLogs({
+        fromBlock: "earliest",
+        toBlock: "latest",
+        address: BIDIFY.address[chainId],
+        topics: [topic0],
+      });
+    } catch (e) {
+      console.log(e.message)
+    }
 
+
+    let totalLists = 0;
+    for (let log of logs) {
+      totalLists++;
+    }
+
+    return totalLists;
+  };
   async function list({
     currency,
     platform,
@@ -137,31 +173,122 @@ const CollectionCard = (props) => {
     if (!currency) {
       currency = "0x0000000000000000000000000000000000000000";
     }
-    const Bidify = new new Web3(window.ethereum).eth.Contract(
+    const Bidify =  new ethers.Contract(
+      BIDIFY.address[chainId],
       BIDIFY.abi,
-      BIDIFY.address[chainId]
+      library.getSigner()
     );
     // return token;
     const tokenNum = isERC721 ? token : new Web3(window.ethereum).utils.hexToNumberString(token);
     // return console.log("before list", atomic(price.toString(), decimals).toString())
-    try{
-      return await Bidify.methods
-      .list(
-        currency,
-        platform,
-        tokenNum,
-        atomic(price.toString(), decimals),
-        Number(days),
-        "0x0000000000000000000000000000000000000000",
-        allowMarketplace,
-        isERC721
-      )
-      .send({ from: account });
-    }catch (error) {
+    try {
+      const totalCount = await getLogs()
+      const tx = await Bidify
+        .list(
+          currency,
+          platform,
+          tokenNum.toString(),
+          atomic(price.toString(), decimals).toString(),
+          Number(days),
+          "0x0000000000000000000000000000000000000000",
+          allowMarketplace,
+          isERC721
+        )
+      const det = await tx.wait()
+      while(await getLogs() === totalCount) {
+        console.log("while loop")
+      }
+      // console.log("listed results", tx, det)
+      // const listCnt = await getLogs()
+      console.log("total Count")
+      const newId = totalCount
+      await delay()
+      const listingDetail = await getDetailFromId(newId)
+      console.log("adding to database", listingDetail)
+      await axios.post(`${baseUrl}/auctions`, listingDetail)
+    } catch (error) {
       return console.log("list error", error)
     }
+  }
+  const delay = async() => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve()
+      }, [3000])
+    })
+  }
+  const getListingDetail = async (id) => {
+    const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
+    const raw = await bidify.getListing(id.toString())
+    const nullIfZeroAddress = (value) => {
+      if (value === "0x0000000000000000000000000000000000000000") {
+        return null;
+      }
+      return value;
+    };
+
+    let currency = nullIfZeroAddress(raw.currency);
+
+    let highBidder = nullIfZeroAddress(raw.highBidder);
+    let currentBid = raw.price;
+    let nextBid = await bidify.getNextBid(id);
+    let decimals = await getDecimals(currency);
+    if (currentBid === nextBid) {
+      currentBid = null;
+    } else {
+      currentBid = unatomic(currentBid.toString(), decimals);
     }
-    
+
+    let referrer = nullIfZeroAddress(raw.referrer);
+    let marketplace = nullIfZeroAddress(raw.marketplace);
+
+    let bids = [];
+    const web3 = new Web3(window.ethereum)
+    const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
+    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
+    const logs = ret.data.result
+    for (let bid of logs) {
+      bids.push({
+        bidder: "0x" + bid.topics[2].substr(-40),
+        price: unatomic(
+          new web3.utils.BN(bid.data.substr(2), "hex").toString(),
+          decimals
+        ),
+      });
+    }
+    return {
+      id,
+      creator: raw.creator,
+      currency,
+      platform: raw.platform,
+      token: raw.token.toString(),
+
+      highBidder,
+      currentBid,
+      nextBid: unatomic(nextBid.toString(), decimals),
+
+      referrer,
+      allowMarketplace: raw.allowMarketplace,
+      marketplace,
+
+      endTime: raw.endTime.toString(),
+      paidOut: raw.paidOut,
+      isERC721: raw.isERC721,
+
+      bids,
+    };
+  }
+  const getDetailFromId = async (id) => {
+    let detail
+    if(chainId === 43114 || chainId === 137) {
+      detail = await getListingDetail(id)
+    }
+    else detail = await getListing(id)
+    const fetchedValue = await getFetchValues(detail)
+    return { ...fetchedValue, ...detail, network: chainId }
+
+  }
+
 
   const renderCreateForm = (
     <Formik

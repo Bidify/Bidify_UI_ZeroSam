@@ -1,3 +1,13 @@
+export const baseUrl = "https://api.bidify.org/api"
+// export const baseUrl = "http://localhost:8080/api"
+export const getLogUrl = {
+  137: "https://api.polygonscan.com/api?module=logs&action=getLogs",
+  43114: "https://api.snowtrace.io/api?module=logs&action=getLogs"
+}
+export const snowApi = {
+  43114: "Y72B4EMH42SYS5C3RGGIDJM9HPQKYUSUTH",
+  137: "XKIRV2YEWTDJIXRQSXB42PT78P1879NTJT"
+}
 export const BIDIFY = {
   address: {
     1: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
@@ -8,7 +18,11 @@ export const BIDIFY = {
     42: "0xE3Af2cf2729b5fb8339aF5F0aBEd3fbfAE095E47",
     // 1987: "0xC0678f9CD68A91a348C4fa2B79e1e556FAb8C135" // 1 day contract
     // 1987: "0xB5e5Ac4829fF769981b10A258A210abe71BdDCa1"    // 10 minutes contract
-    1987: "0xaD83C196cb16793E0bDd22a7Eb157cAd08e9AdeB"    // fixed fees
+    1987: "0xaD83C196cb16793E0bDd22a7Eb157cAd08e9AdeB",    // fixed fees
+    43113: "0x3E1E45661B58d1485831AffBD51C2d33258e85Fe",
+    43114: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
+    137: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
+    80001: "0x0b3A202C14595b67c3E98c27C636e7f3853Cafa3",
   },
   "abi": [
     {
@@ -1694,296 +1708,15 @@ export const BIT = { //WETH
     },
   ],
 };
-// export const WEGEM = {
-//   address: "0xE5fca20e55811D461800A853f444FBC6f5B72BEa",
-//   abi: [
-//     {
-//       "type": "event",
-//       "name": "Approval",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "src",
-//           "internalType": "address",
-//           "indexed": true
-//         },
-//         {
-//           "type": "address",
-//           "name": "guy",
-//           "internalType": "address",
-//           "indexed": true
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256",
-//           "indexed": false
-//         }
-//       ],
-//       "anonymous": false
-//     },
-//     {
-//       "type": "event",
-//       "name": "Deposit",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "dst",
-//           "internalType": "address",
-//           "indexed": true
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256",
-//           "indexed": false
-//         }
-//       ],
-//       "anonymous": false
-//     },
-//     {
-//       "type": "event",
-//       "name": "Transfer",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "src",
-//           "internalType": "address",
-//           "indexed": true
-//         },
-//         {
-//           "type": "address",
-//           "name": "dst",
-//           "internalType": "address",
-//           "indexed": true
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256",
-//           "indexed": false
-//         }
-//       ],
-//       "anonymous": false
-//     },
-//     {
-//       "type": "event",
-//       "name": "Withdrawal",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "src",
-//           "internalType": "address",
-//           "indexed": true
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256",
-//           "indexed": false
-//         }
-//       ],
-//       "anonymous": false
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "view",
-//       "outputs": [
-//         {
-//           "type": "uint256",
-//           "name": "",
-//           "internalType": "uint256"
-//         }
-//       ],
-//       "name": "allowance",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "",
-//           "internalType": "address"
-//         },
-//         {
-//           "type": "address",
-//           "name": "",
-//           "internalType": "address"
-//         }
-//       ]
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "nonpayable",
-//       "outputs": [
-//         {
-//           "type": "bool",
-//           "name": "",
-//           "internalType": "bool"
-//         }
-//       ],
-//       "name": "approve",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "guy",
-//           "internalType": "address"
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256"
-//         }
-//       ]
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "view",
-//       "outputs": [
-//         {
-//           "type": "uint256",
-//           "name": "",
-//           "internalType": "uint256"
-//         }
-//       ],
-//       "name": "balanceOf",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "",
-//           "internalType": "address"
-//         }
-//       ]
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "view",
-//       "outputs": [
-//         {
-//           "type": "uint8",
-//           "name": "",
-//           "internalType": "uint8"
-//         }
-//       ],
-//       "name": "decimals",
-//       "inputs": []
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "payable",
-//       "outputs": [],
-//       "name": "deposit",
-//       "inputs": []
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "view",
-//       "outputs": [
-//         {
-//           "type": "string",
-//           "name": "",
-//           "internalType": "string"
-//         }
-//       ],
-//       "name": "name",
-//       "inputs": []
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "view",
-//       "outputs": [
-//         {
-//           "type": "string",
-//           "name": "",
-//           "internalType": "string"
-//         }
-//       ],
-//       "name": "symbol",
-//       "inputs": []
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "view",
-//       "outputs": [
-//         {
-//           "type": "uint256",
-//           "name": "",
-//           "internalType": "uint256"
-//         }
-//       ],
-//       "name": "totalSupply",
-//       "inputs": []
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "nonpayable",
-//       "outputs": [
-//         {
-//           "type": "bool",
-//           "name": "",
-//           "internalType": "bool"
-//         }
-//       ],
-//       "name": "transfer",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "dst",
-//           "internalType": "address"
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256"
-//         }
-//       ]
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "nonpayable",
-//       "outputs": [
-//         {
-//           "type": "bool",
-//           "name": "",
-//           "internalType": "bool"
-//         }
-//       ],
-//       "name": "transferFrom",
-//       "inputs": [
-//         {
-//           "type": "address",
-//           "name": "src",
-//           "internalType": "address"
-//         },
-//         {
-//           "type": "address",
-//           "name": "dst",
-//           "internalType": "address"
-//         },
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256"
-//         }
-//       ]
-//     },
-//     {
-//       "type": "function",
-//       "stateMutability": "nonpayable",
-//       "outputs": [],
-//       "name": "withdraw",
-//       "inputs": [
-//         {
-//           "type": "uint256",
-//           "name": "wad",
-//           "internalType": "uint256"
-//         }
-//       ]
-//     }
-//   ]
-// }
 
 export const URLS = {
   1: "https://mainnet.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
   3: "https://ropsten.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
   4: "https://rinkeby.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
   5: "https://goerli.infura.io/v3/0c8149f8e63b4b818d441dd7f74ab618",
-  1987: "https://lb.rpc.egem.io"
+  1987: "https://lb.rpc.egem.io",
+  43113: "https://api.avax-test.network/ext/bc/C/rpc",
+  43114: "https://api.avax.network/ext/bc/C/rpc",
+  80001: "https://matic-testnet-archive-rpc.bwarelabs.com",
+  137: "https://polygon-rpc.com"
 };
