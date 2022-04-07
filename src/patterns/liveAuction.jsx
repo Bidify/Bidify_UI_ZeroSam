@@ -75,12 +75,15 @@ const LiveAuction = () => {
     const totalAuction = await getLogs();
     let Lists = [];
     // console.log("totalAuction", totalAuction)
+    const pLists = []
     for (let i = 0; i < totalAuction; i++) {
       let result
-      if(chainId === 43114 || chainId === 137) result = await getListingDetail(i)
-      else result = await getListing(i.toString());
-      Lists[i] = result;
+      if(chainId === 43114 || chainId === 137) result = getListingDetail(i)
+      else result = getListing(i.toString());
+      pLists[i] = result
     }
+    
+    Lists = await Promise.all(pLists);
     console.log("blockchain data", Lists)
     getDetails(Lists);
   };
