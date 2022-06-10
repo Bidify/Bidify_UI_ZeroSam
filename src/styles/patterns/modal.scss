@@ -125,7 +125,7 @@
 }
 
 .payment_modal {
-  max-width: 520px;
+  max-width: 580px;
   width: 100%;
   position: fixed;
   top: 50%;
@@ -179,12 +179,7 @@
     margin-bottom: 10px;
     color: #f79420;
 
-    &.success {
-      color: #a9d944;
-    }
-    &.error {
-      color: #ff7360;
-    }
+    
   }
 
   .flex {
@@ -201,5 +196,95 @@
       font-size: 12px;
       font-weight: 500;
     }
+  }
+  .social_panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .mt-1 {
+    margin-top: 1rem
+  }
+  .expand_panel {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .follow_section {
+    p {
+      height: 25px;
+
+    }
+    div {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+    }
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7d7d7d;
+    width: 100%;
+  }
+  .w-full {
+    width: 100%;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: space-between;
+    @media (max-width: 576px) {
+      gap: 16px;
+      flex-direction: column;
+      p {
+        height: auto !important;
+      }
+      input {
+        flex-grow: 1;
+        min-width: 100px;
+      }
+    }
+  }
+  .mailing_list {
+    // width: 50%;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7d7d7d;
+    p {
+      height: 25px;
+    }
+  }
+  .subscribe {
+    display: flex;
+    gap: 8px;
+    input {
+      border-radius: 8px;
+      border:#7d7d7d 1px solid;
+      padding: 4px;
+    }
+  }
+  .success {
+    color: #a9d944;
+  }
+  .error {
+    color: #ff7360;
+  }
+  .expand_btn {
+    min-width: 100px;
+  }
+  .square-5 {
+    width: 14px;
+    height: 14px;
+  }
+  .btn_close {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    border-radius: 100%;
+    padding: 4px;
   }
 }

@@ -98,12 +98,8 @@ const CollectionCard = (props) => {
         "Confirm the second transaction to allow your NFT to be listed, there will be another small network fee."
       );
       await list({ currency, platform, token, price, days, isERC721 });
-      getDetails();
       setIsLoading(false);
       setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 3000);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -393,6 +389,11 @@ const CollectionCard = (props) => {
     </div>
   );
 
+  const handleAbort = () => {
+    setIsSuccess(false)
+    getDetails()
+  }
+
   return (
     <>
       {renderCard}
@@ -403,12 +404,12 @@ const CollectionCard = (props) => {
         setIsModal={setIsModal}
         setIsLoading={setIsLoading}
         setIsError={setIsError}
-        setIsSuccess={setIsSuccess}
       />
       <Prompt isModal={isLoading} processContent={processContent} />
       <Prompt
         variant="success"
         isModal={isSuccess}
+        handleAbort={handleAbort}
         successContent={
           "Your NFT has now been listed and will be available to purchase on Bidify and all applicable Bidify powered sites and platforms."
         }

@@ -73,17 +73,25 @@ const LiveAuction = () => {
     //const totalAuction = await Bidify.methods.totalListings().call();
 
     const totalAuction = await getLogs();
+    console.log("total auction", totalAuction)
     let Lists = [];
     // console.log("totalAuction", totalAuction)
     const pLists = []
     for (let i = 0; i < totalAuction; i++) {
       let result
-      if(chainId === 43114 || chainId === 137) result = getListingDetail(i)
-      else result = getListing(i.toString());
-      pLists[i] = result
+      if(chainId === 43114 || chainId === 137) {
+        result = await getListingDetail(i)
+        Lists[i] = result
+      }
+      else {
+        result = getListing(i.toString());
+        // console.log(result)
+        pLists[i] = result
+        // Lists[i] = result
+      }
     }
     
-    Lists = await Promise.all(pLists);
+    if(chainId !== 43114 && chainId !== 137) Lists = await Promise.all(pLists);
     console.log("blockchain data", Lists)
     getDetails(Lists);
   };
@@ -119,6 +127,7 @@ const LiveAuction = () => {
     const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
     const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
     const logs = ret.data.result
+    console.log("logs", logs)
     for (let bid of logs) {
       bids.push({
         bidder: "0x" + bid.topics[2].substr(-40),
@@ -278,7 +287,9 @@ const LiveAuction = () => {
     return finalResult;
   };
 
-  const getDetails = async (lists) => {
+  const getDetails = async (_lists) => {
+    const lists = _lists.filter(item => item.paidOut === false)
+    console.log(lists)
     const unsolvedPromises = lists.map((val) => getFetchValues(val));
     const results = await Promise.all(unsolvedPromises);
     setUpdate(results.map(item => { return { ...item, network: chainId } }))

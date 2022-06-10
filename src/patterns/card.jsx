@@ -73,6 +73,10 @@ const Card = (props) => {
     setSymbol(res);
   }, []);
 
+  const handleAbort = () => {
+    setIsSuccess(false)
+    getLists()
+  }
   const handleFinisheAuction = async () => {
     setIsLoading(true);
     try {
@@ -86,10 +90,6 @@ const Card = (props) => {
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
       setIsSuccess(true);
-      getLists();
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 3000);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -123,10 +123,6 @@ const Card = (props) => {
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
       setIsSuccess(true);
-      getLists();
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 3000);
     } catch (error) {
       console.log(error);
       if (error === "low_balance") {
@@ -148,7 +144,9 @@ const Card = (props) => {
     }
   };
   const bid = async (id, amount) => {
-    let currency = (await getListingDetail(id)).currency;
+    let currency
+    if(chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
+    else currency = (await getListing(id.toString())).currency
     let decimals = await getDecimals(currency)
     const Bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
     const from = account
@@ -171,14 +169,14 @@ const Card = (props) => {
     // return;
     const from = account;
     const chain_id = chainId;
-    let currency = (await getListingDetail(id)).currency;
-    let balance;
-    // console.log("sign bid", from)
+    let currency 
+    if(chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
+    else currency = (await getListing(id.toString())).currency
+    let balance;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
     const web3 = new Web3(window.ethereum)
     if (!currency) {
       balance = await web3.eth.getBalance(from)
       balance = web3.utils.fromWei(balance)
-      console.log(balance, amount)
     }
     else {
       const Bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
@@ -197,14 +195,13 @@ const Card = (props) => {
       }
     }
 
-    // console.log("amount and balance", Number(amount), Number(balance))
     if (Number(balance) < Number(amount)) {
       throw "low_balance";
     }
   }
-  const getListingDetail = async (id) => {
+  const getListingDetail = async (id) => { 
     const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
-    const raw = await bidify.getListing(id.toString())
+    const raw = await bidify.getListing(id.toString()) 
     const nullIfZeroAddress = (value) => {
       if (value === "0x0000000000000000000000000000000000000000") {
         return null;
@@ -408,7 +405,8 @@ const Card = (props) => {
       <Prompt
         variant="success"
         isModal={isSuccess}
-        successContent="Congratulations, you have successfully bid on this NFT (show image), you are the current highest bidder…. Good luck"
+        handleAbort={handleAbort}
+        successContent="Congratulations, you have successfully bid on this NFT, you are the current highest bidder…. Good luck"
       />
       <Prompt variant="error" isModal={isError} errorMessage={errorMessage} />
     </>
