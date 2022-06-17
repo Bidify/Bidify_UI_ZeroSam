@@ -23,9 +23,10 @@ import lock from "../assets/icons/lock.svg";
 import { getListing, getDecimals, unatomic, atomic } from "../utils/Bidify";
 import { getSymbol } from "../utils/getCurrencySymbol";
 import Web3 from "web3";
-import { baseUrl, BIDIFY, URLS, snowApi, getLogUrl } from "../utils/config";
+import { baseUrl, BIDIFY, BIT, snowApi, getLogUrl } from "../utils/config";
 import axios from "axios";
 import { ethers } from "ethers"
+import PromptFinish from "./promptFinish";
 
 const Card = (props) => {
   const { name, creator, image, currentBid, endTime, id, currency, getLists, highBidder, getFetchValues } =
@@ -33,13 +34,13 @@ const Card = (props) => {
   // console.log(props)
   const { account, chainId, library } = useWeb3React();
   const history = useHistory();
-
   const isUser = account?.toLocaleLowerCase() === creator?.toLocaleLowerCase();
   const isHighBidder = account?.toLocaleLowerCase() === highBidder?.toLocaleLowerCase();
   const [isModal, setIsModal] = useState(false);
   const [processContent, setProcessContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
   const [isVideo, setIsVideo] = useState(false);
@@ -51,33 +52,38 @@ const Card = (props) => {
   //   return () => setIsSuccess(false);
   // }, [isSuccess]);
 
-  useEffect(async () => {
-    if (currency === "0x0000000000000000000000000000000000000000" || !currency) {
-      switch (chainId) {
-        case 43113: case 43114:
-          setSymbol("AVAX")
-          break
-        case 137: case 80001:
-          setSymbol("MATIC")
-          break
-        case 1987:
-          setSymbol("EGEM")
-          break
-        default:
-          setSymbol("ETH")
-          break
+  useEffect(() => {
+    const getData = async () => {
+      if (currency === "0x0000000000000000000000000000000000000000" || !currency) {
+        switch (chainId) {
+          case 43113: case 43114:
+            setSymbol("AVAX")
+            break
+          case 137: case 80001:
+            setSymbol("MATIC")
+            break
+          case 1987:
+            setSymbol("EGEM")
+            break
+          default:
+            setSymbol("ETH")
+            break
+        }
+        return
       }
-      return
+      const res = await getSymbol(currency);
+      setSymbol(res);
     }
-    const res = await getSymbol(currency);
-    setSymbol(res);
-  }, []);
+    getData()
+  }, [chainId, currency]);
 
   const handleAbort = () => {
     setIsSuccess(false)
+    setIsFinished(false)
     getLists()
   }
   const handleFinisheAuction = async () => {
+    // return setIsFinished(true)
     setIsLoading(true);
     try {
       await new new Web3(window.ethereum).eth.Contract(
@@ -89,7 +95,7 @@ const Card = (props) => {
       const updateData = await getDetailFromId(id);
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
-      setIsSuccess(true);
+      setIsFinished(true);
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -115,7 +121,7 @@ const Card = (props) => {
         "Confirm the second transaction of your bid amount, there will be a small network fee for this."
       );
       await bid(id, amount);
-      while(account !== (await getDetailFromId(id)).highBidder) {
+      while (account !== (await getDetailFromId(id)).highBidder) {
         console.log("in while loop")
       }
       console.log("out of loop")
@@ -145,7 +151,7 @@ const Card = (props) => {
   };
   const bid = async (id, amount) => {
     let currency
-    if(chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
+    if (chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
     else currency = (await getListing(id.toString())).currency
     let decimals = await getDecimals(currency)
     const Bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
@@ -169,10 +175,10 @@ const Card = (props) => {
     // return;
     const from = account;
     const chain_id = chainId;
-    let currency 
-    if(chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
+    let currency
+    if (chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
     else currency = (await getListing(id.toString())).currency
-    let balance;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+    let balance;
     const web3 = new Web3(window.ethereum)
     if (!currency) {
       balance = await web3.eth.getBalance(from)
@@ -196,12 +202,12 @@ const Card = (props) => {
     }
 
     if (Number(balance) < Number(amount)) {
-      throw "low_balance";
+      throw new Error("low_balance");
     }
   }
-  const getListingDetail = async (id) => { 
+  const getListingDetail = async (id) => {
     const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
-    const raw = await bidify.getListing(id.toString()) 
+    const raw = await bidify.getListing(id.toString())
     const nullIfZeroAddress = (value) => {
       if (value === "0x0000000000000000000000000000000000000000") {
         return null;
@@ -213,6 +219,7 @@ const Card = (props) => {
 
     let highBidder = nullIfZeroAddress(raw.highBidder);
     let currentBid = raw.price;
+    let endingPrice = raw.endingPrice;
     let nextBid = await bidify.getNextBid(id);
     let decimals = await getDecimals(currency);
     if (currentBid === nextBid) {
@@ -248,6 +255,7 @@ const Card = (props) => {
       highBidder,
       currentBid,
       nextBid: unatomic(nextBid.toString(), decimals),
+      endingPrice: unatomic(endingPrice.toString(), decimals),
 
       referrer,
       allowMarketplace: raw.allowMarketplace,
@@ -407,6 +415,15 @@ const Card = (props) => {
         isModal={isSuccess}
         handleAbort={handleAbort}
         successContent="Congratulations, you have successfully bid on this NFT, you are the current highest bidder…. Good luck"
+      />
+      <PromptFinish
+        variant="success"
+        isModal={isFinished}
+        handleAbort={handleAbort}
+        highBidder={highBidder}
+        seller={creator}
+        chainId={chainId}
+        name={name}
       />
       <Prompt variant="error" isModal={isError} errorMessage={errorMessage} />
     </>

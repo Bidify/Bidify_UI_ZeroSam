@@ -26,7 +26,7 @@ import lock from "../assets/icons/lock.svg";
 
 //IMPORTING UTILITY PACKGAES
 
-import { finish, signBid, bid } from "../utils/Bidify";
+import { signBid, bid } from "../utils/Bidify";
 
 //IMPORTING MEDIA ASSETS
 
@@ -50,7 +50,7 @@ const DetailsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [paramId, setParamId] = useState();
+  // const [paramId, setParamId] = useState();
   const { chainId, account } = useWeb3React();
   const [isPlay, setIsPlay] = useState(false);
   const [yourBid, setYourBid] = useState(0);
@@ -85,7 +85,7 @@ const DetailsPage = () => {
   const getLogs = async () => {
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
     const topic0 =
-      "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748";
+      "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     const logs = await web3.eth.getPastLogs({
       fromBlock: "earliest",
       toBlock: "latest",
@@ -93,12 +93,7 @@ const DetailsPage = () => {
       topics: [topic0],
     });
 
-    let totalLists = 0;
-    for (let log of logs) {
-      totalLists++;
-    }
-
-    return totalLists;
+    return logs.length;
   };
 
   const getFetchValues = async (val) => {
@@ -165,7 +160,7 @@ const DetailsPage = () => {
     }
 
     function imageurl(url) {
-      const string = url;
+      // const string = url;
       const check = url.substr(16, 4);
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
@@ -524,7 +519,7 @@ const DetailsPage = () => {
           <div className="grid_center">
             <Text>
               There is no NFT with token id{" "}
-              <b style={{ fontWeight: 600, color: "#343434" }}>{paramId}</b>
+              <b style={{ fontWeight: 600, color: "#343434" }}>{"paramId"}</b>
             </Text>
           </div>
         ) : (

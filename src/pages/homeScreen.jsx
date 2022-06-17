@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -46,15 +46,17 @@ const platforms = [
 
 const HomeScreen = () => {
   const [currentState, setCurrentState] = useState("live");
-  const [currentPlatform, setCurrentPlatform] = useState("");
+  // const [currentPlatform, setCurrentPlatform] = useState("");
   const [nftData, setNftData] = useState([]);
   const [loading, setloading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(0);
-  const [totalData, setTotalData] = useState(9);
+  // const [initialLoad, setInitialLoad] = useState(0);
+  const initialLoad = 0;
+  // const [totalData, setTotalData] = useState(9);
+  const totalData = 9;
 
   const handleFilter = async (platform, name) => {
     setloading(true);
-    setCurrentPlatform(platform);
+    // setCurrentPlatform(platform);
     setCurrentState(name);
     let result = [];
     var total = totalData === 9 ? totalData : totalData + 1;

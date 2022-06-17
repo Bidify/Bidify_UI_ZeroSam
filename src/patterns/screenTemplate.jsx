@@ -9,14 +9,10 @@ import { Button, Text } from "../components";
 
 import logofull from "../assets/logo/logofull.svg";
 
-//IMPORTING UTILITY PACKAGES
-
-import { injected } from "../utils/connector";
-
 const ScreenTemplate = ({ children }) => {
   const [initailLoad, setInitialLoad] = useState(true);
   const [wrongNetwork, setWrongNetwork] = useState(false);
-  const { active, activate, chainId } = useWeb3React();
+  const { chainId } = useWeb3React();
   const [isMetamask, setIsMetamask] = useState(false);
 
   useEffect(() => {

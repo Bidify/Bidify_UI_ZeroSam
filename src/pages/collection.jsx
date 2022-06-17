@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { FetchWrapper } from "use-nft";
 import Web3 from "web3";
@@ -35,7 +35,7 @@ const Collection = () => {
 
   // const [update, setUpdate] = useState([])
 
-  const [data, setData] = useState([])
+  // const [data, setData] = useState([])
   //HANDLING METHODS
   const getCollection = async () => {
     userDispatch({
@@ -45,11 +45,11 @@ const Collection = () => {
     const response = await axios.get(`${baseUrl}/collection`, { params: { chainId, owner: account } })
     const results = response.data
     // console.log('result', results)
-    setData(results)
+    // setData(results)
     if (results.length === 0) {
       console.log("getting from blockchain")
       const newData = await getDetails()
-      // console.log("fetching from chain", update)
+      console.log("fetching from chain", newData)
       await handleUpdate(newData)
     }
     else {
@@ -154,7 +154,7 @@ const Collection = () => {
     }
 
     function imageurl(url) {
-      const string = url;
+      // const string = url;
       const check = url.substr(16, 4);
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
@@ -202,7 +202,7 @@ const Collection = () => {
     } catch (e) {
       console.log(e.message)
     }
-    // console.log("passed get nfts")
+    console.log("passed get nfts", getNft)
     for (var i = 0; i < getNft?.length; i++) {
       try {
         const res = await getFetchValues(getNft[i]);
@@ -221,7 +221,7 @@ const Collection = () => {
   };
 
   async function getNFTs() {
-    console.log(chainId)
+    // console.log(chainId)
     // console.log("before testing", new ethers.providers.Web3Provider(URLS[chainId]))
     const from = account;
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
@@ -249,6 +249,7 @@ const Collection = () => {
     }).catch(e => {
       console.log("error on getpastlogs", e.message)
     });
+    console.log("res", logs)
     // Filter to just tokens which are still in our custody
     const res = [];
     const ids = {};
@@ -354,7 +355,7 @@ const Collection = () => {
   const handleUpdate = async (update) => {
     // console.log("updating", update)
     if (update.length === 0) return
-    const res = await axios.post(`${baseUrl}/admincollection`, update)
+    await axios.post(`${baseUrl}/admincollection`, update)
     // console.log('update result', res)
   }
   return (

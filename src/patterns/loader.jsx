@@ -27,6 +27,7 @@ const Loader = () => {
         case 137: case 80001:
           setLoadGif(maticLoader)
           break;
+        default: break;
       }
     }
   }, [account, chainId])

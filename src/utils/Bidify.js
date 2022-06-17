@@ -493,6 +493,7 @@ export async function getListing(id) {
   let highBidder = nullIfZeroAddress(raw.highBidder);
   let currentBid = raw.price;
   let nextBid = await Bidify.methods.getNextBid(id).call();
+  let endingPrice = raw.endingPrice;
   let decimals = await getDecimals(currency);
   if (currentBid === nextBid) {
     currentBid = null;
@@ -532,6 +533,7 @@ export async function getListing(id) {
     highBidder,
     currentBid,
     nextBid: unatomic(nextBid, decimals),
+    endingPrice: unatomic(endingPrice.toString(), decimals),
 
     referrer,
     allowMarketplace: raw.allowMarketplace,
@@ -643,7 +645,7 @@ export async function getListings(creator, platform) {
     toBlock: "latest",
     address: settings.bidifyAddress,
     topics: [
-      "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748",
+      "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de",
       null,
       creatorTopic,
       platformTopic,

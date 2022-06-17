@@ -3,7 +3,6 @@ import { useWeb3React } from "@web3-react/core";
 import { FetchWrapper } from "use-nft";
 import { ethers, Contract } from "ethers";
 import Web3 from "web3";
-import { Link } from "react-router-dom";
 
 //IMPORTING STYLESHEET
 
@@ -12,7 +11,6 @@ import "../styles/patterns/liveauction.scss";
 //IMPORTING PATTERNS
 
 import Card from "../patterns/card";
-import { Text, Button } from "../components";
 import ScreenTemplate from "../patterns/screenTemplate";
 import NoArtifacts from "../patterns/noArtifacts";
 
@@ -35,7 +33,7 @@ const MyBiddings = () => {
 
   useEffect(() => {
     if (!userState?.isLiveAuctionFetched) getLists();
-  }, [account, chainId]);
+  }, [account, chainId, userState]);
 
   const getLists = async () => {
     //const Bidify = new web3.eth.Contract(BIDIFY.abi, BIDIFY.address);
@@ -53,7 +51,7 @@ const MyBiddings = () => {
   const getLogs = async () => {
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
     const topic0 =
-      "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748";
+      "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     const logs = await web3.eth.getPastLogs({
       fromBlock: "earliest",
       toBlock: "latest",
@@ -61,12 +59,7 @@ const MyBiddings = () => {
       topics: [topic0],
     });
 
-    let totalLists = 0;
-    for (let log of logs) {
-      totalLists++;
-    }
-
-    return totalLists;
+    return logs.length;
   };
 
   const getFetchValues = async (val) => {
@@ -133,7 +126,7 @@ const MyBiddings = () => {
     }
 
     function imageurl(url) {
-      const string = url;
+      // const string = url;
       const check = url.substr(16, 4);
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);

@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Field } from "formik";
 
 //IMPORTING STYLESHEET
 
@@ -132,7 +131,7 @@ export const CollectionModal = (props) => {
 };
 
 export const LiveAuctionModal = (props) => {
-  const { isModal, setIsModal, currentBid, nextBid, handleBidMethod, symbol } = props;
+  const { isModal, setIsModal, currentBid, nextBid, handleBidMethod, symbol, endingPrice } = props;
   const [yourBid, setYourBid] = useState(nextBid);
   const renderModalHeader = (
     <div className="modal_header">
@@ -156,6 +155,11 @@ export const LiveAuctionModal = (props) => {
       <Text>Minimum bid</Text>
       <div className="form_input">
         <section>{nextBid}</section>
+        <Text style={{ color: "#F79420" }}>{symbol}</Text>
+      </div>
+      <Text>Buy it now price</Text>
+      <div className="form_input">
+        <section>{endingPrice}</section>
         <Text style={{ color: "#F79420" }}>{symbol}</Text>
       </div>
       <Text>Your bid</Text>

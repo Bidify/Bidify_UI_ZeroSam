@@ -4,7 +4,7 @@ import Web3 from "web3";
 
 //IMPORTING COMPONENTS
 
-import { Text, Button } from "../components";
+import { Text } from "../components";
 
 //IMPORTING STYLESHEET
 
@@ -21,9 +21,9 @@ import refresh from "../assets/icons/youtube.svg";
 
 import { UserContext } from "../store/contexts";
 import { useWeb3React } from "@web3-react/core";
-import { BIT, URLS } from "../utils/config";
+import { URLS } from "../utils/config";
 import { useEffect } from "react";
-import { getSymbol } from "../utils/getCurrencySymbol";
+// import { getSymbol } from "../utils/getCurrencySymbol";
 import { injected } from "../utils/connector";
 
 const upcomingFeatures = [
@@ -85,7 +85,7 @@ const networkData = [
 
 const Profile = () => {
   //INITIALIZING HOOKS
-  const [currency, setCurrency] = useState(null);
+  // const [currency, setCurrency] = useState(null);
   const { userState, userDispatch } = useContext(UserContext);
   const { account, active, activate, chainId } = useWeb3React();
 
@@ -96,22 +96,21 @@ const Profile = () => {
   const [symbol, setSymbol] = useState("");
   const [networkName, setNetworkName] = useState();
 
-  useEffect(async () => {
-    if (account) {
-      if(!currency)
-      {
+  useEffect(() => {
+    const getData = async () => {
+      if (account) {
         const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
         let _balance = await web3.eth.getBalance(account); //Will give value in.
         _balance = web3.utils.fromWei(_balance);
         setBalance(_balance)
-        switch(chainId) {
+        switch (chainId) {
           case 43113: case 43114:
             setSymbol("AVAX");
             break;
           case 137: case 80001:
             setSymbol("MATIC");
             break;
-          case 1987: 
+          case 1987:
             setSymbol("EGEM");
             break;
           default:
@@ -119,10 +118,11 @@ const Profile = () => {
             break;
         }
         return
+        // setBalance(await getBalance());
+        // setSymbol(await getSymbol(BIT.address[chainId]));
       }
-      setBalance(await getBalance());
-      setSymbol(await getSymbol(BIT.address[chainId]));
     }
+    getData()
   }, [account, chainId]);
 
   // const handleFreeToken = async () => {
@@ -223,23 +223,23 @@ const Profile = () => {
     setToggleSwitchNetwork(false);
   };
 
-  const getBalance = async () => {
-    try {
-      return Web3.utils.fromWei(
-        await new new Web3(window.ethereum).eth.Contract(
-          BIT.abi,
-          BIT.address[chainId]
-        ).methods
-          .balanceOf(account)
-          .call()
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const getBalance = async () => {
+  //   try {
+  //     return Web3.utils.fromWei(
+  //       await new new Web3(window.ethereum).eth.Contract(
+  //         BIT.abi,
+  //         BIT.address[chainId]
+  //       ).methods
+  //         .balanceOf(account)
+  //         .call()
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(async () => {
-    if(!account){
+  useEffect(() => {
+    if (!account) {
       setBalance("")
       setSymbol("")
       setNetworkName("")
@@ -320,16 +320,16 @@ const Profile = () => {
       <div>
         <div style={{ position: "relative" }}>
           <Text>Metamask</Text>
-          <Text style={{marginTop: 8}}>
-            <Text component="span"  className="net-selection" onClick={() => setToggleSwitchNetwork(!toggleSwitchNetwork)} >Select Network<i></i></Text>
-            <a href="https://youtu.be/F74ayyxlRYk" tarkget="_blank" rel="noreferrer" style={{display: "flex"}}>
+          <Text style={{ marginTop: 8 }}>
+            <Text component="span" className="net-selection" onClick={() => setToggleSwitchNetwork(!toggleSwitchNetwork)} >Select Network<i></i></Text>
+            <a href="https://youtu.be/F74ayyxlRYk" tarkget="_blank" rel="noreferrer" style={{ display: "flex" }}>
               <img
                 src={refresh}
                 alt="tutorial"
                 style={{ cursor: "pointer", width: 22 }}
               />
             </a>
-            
+
           </Text>
           {toggleSwitchNetwork && renderSwitchNetwork}
         </div>
@@ -338,7 +338,7 @@ const Profile = () => {
       <Text component="span" variant="primary">{networkName}</Text>
       <Text className="account_info">
         {
-          !account ? <Text component="span" style={{fontSize: 11}}>No account</Text> : <Text component="span" style={{ fontSize: 11 }}>{`${account?.slice(
+          !account ? <Text component="span" style={{ fontSize: 11 }}>No account</Text> : <Text component="span" style={{ fontSize: 11 }}>{`${account?.slice(
             0,
             4
           )}....${account?.slice(account?.length - 12)}`}</Text>
@@ -356,7 +356,7 @@ const Profile = () => {
           copied
         </span>
       </Text>
-      <Text style={{ fontWeight: 600 }}>{balance ? balance.toString().slice(0,7) : 0} {symbol ? symbol : ""}</Text>
+      <Text style={{ fontWeight: 600 }}>{balance ? balance.toString().slice(0, 7) : 0} {symbol ? symbol : ""}</Text>
     </div>
   );
 

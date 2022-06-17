@@ -12,17 +12,14 @@ import { Button, Text } from "../components";
 //IMPORTING MEDIA ASSETS
 
 import check_big from "../assets/icons/check_big.svg";
-import error_outline from "../assets/icons/error_outline.svg";
-import lock from "../assets/icons/lock.svg";
 import transactionComplete from "../assets/abstracts/transactionComplete.svg";
-import transactionIncomplete from "../assets/abstracts/transactionIncomplete.svg";
-import transactionProcessing from "../assets/abstracts/transactionProcessing.svg";
 import facebook from "../assets/icons/facebook.svg";
 import instagram from "../assets/icons/instagram.svg";
-import telegram from "../assets/icons/telegram.svg";
 import twitter from "../assets/icons/twitter.svg";
 import youtube from "../assets/icons/youtube.svg";
+import telegram from "../assets/icons/telegram.svg";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
+import { EXPLORER } from "../utils/config";
 
 const postUrl = `https://cryptosi.us2.list-manage.com/subscribe/post?u=${process.env.REACT_APP_MAILCHIMP_U}&id=${process.env.REACT_APP_MAILCHIMP_ID}`;
 
@@ -45,57 +42,25 @@ const modal = {
   },
 };
 
-const Prompt = ({
+const PromptFinish = ({
   variant,
   isModal,
-  errorMessage,
-  processContent,
-  successContent = "",
   handleAbort,
-  name = ""
+  highBidder,
+  seller,
+  chainId,
+  name
 }) => {
   const renderTitle = () => {
-    switch (variant) {
-      case "success":
         return "Transaction Complete";
-      case "error":
-        return "Transaction Incomplete";
-      default:
-        return "Transaction Processing";
-    }
-  };
-
-  const renderContent = () => {
-    switch (variant) {
-      case "success":
-        return successContent;
-      case "error":
-        return "Transaction failed!";
-      default:
-        return processContent;
-    }
   };
 
   const renderFooterImage = () => {
-    switch (variant) {
-      case "success":
         return check_big;
-      case "error":
-        return error_outline;
-      default:
-        return lock;
-    }
   };
 
   const renderIllustration = () => {
-    switch (variant) {
-      case "success":
         return transactionComplete;
-      case "error":
-        return transactionIncomplete;
-      default:
-        return transactionProcessing;
-    }
   };
   const [expand, setExpand] = useState(false)
   const CustomForm = ({ status, message, onValidated }) => {
@@ -163,7 +128,12 @@ const Prompt = ({
               <img src={renderIllustration()} alt="illustration" />
             </div>
             <p className={`title ${variant}`}>{renderTitle()}</p>
-            <Text>{errorMessage ? errorMessage : renderContent()}</Text>
+            {highBidder ? <Text>
+              Thank you for completing this auction, The winning NFT will now be sent to the <a className="text-yellow" href={`${EXPLORER[chainId]}/address/${highBidder}`} target="_blank" rel="noreferrer">highest bidder</a> and payment will be made to <a className="text-yellow" href={`${EXPLORER[chainId]}/address/${seller}`} target="_blank" rel="noreferrer">NFT seller</a>
+            </Text> :
+            <Text>
+              Unfortunately this NFT is not sold and will be returned to its original owner.
+            </Text>}
             <div className="flex">
               <img src={renderFooterImage()} alt="icon" />
               {variant === "error" ? (
@@ -178,36 +148,32 @@ const Prompt = ({
             </div>
             {variant === "success" && (
               <div className="social_panel">
-                {name !== "" && <div className="social_icons">
+                <div className="social_icons">
                   <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=https://app.bidify.org&quote=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=https://app.bidify.org&quote=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={facebook} alt="facebook" />
                   </a>
                   <a
-                    href={`https://t.me/share/url?url=https://app.bidify.org&text=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://t.me/share/url?url=https://app.bidify.org&text=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={telegram} alt="telegram" />
                   </a>
                   <a
-                    href={`https://twitter.com/intent/tweet?url=https://app.bidify.org&text=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://twitter.com/intent/tweet?url=https://app.bidify.org&text=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={twitter} alt="twitter" />
                   </a>
-                </div>}
+                </div>
                 <div className="social_panel mt-1">
                   <Button variant="expand_btn secondary" onClick={() => setExpand(value => !value)}>
-                  {!expand ? "Expand" : "Hide"}
-                  {!expand ?
-                    <svg viewBox="0 0 24 24" color="text" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M8.11997 9.29006L12 13.1701L15.88 9.29006C16.27 8.90006 16.9 8.90006 17.29 9.29006C17.68 9.68006 17.68 10.3101 17.29 10.7001L12.7 15.2901C12.31 15.6801 11.68 15.6801 11.29 15.2901L6.69997 10.7001C6.30997 10.3101 6.30997 9.68006 6.69997 9.29006C7.08997 8.91006 7.72997 8.90006 8.11997 9.29006Z"></path></svg> :
-                    <svg viewBox="0 0 24 24" color="text" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M8.11997 14.7101L12 10.8301L15.88 14.7101C16.27 15.1001 16.9 15.1001 17.29 14.7101C17.68 14.3201 17.68 13.6901 17.29 13.3001L12.7 8.7101C12.31 8.3201 11.68 8.3201 11.29 8.7101L6.69997 13.3001C6.30997 13.6901 6.30997 14.3201 6.69997 14.7101C7.08997 15.0901 7.72997 15.1001 8.11997 14.7101Z"></path></svg>
-                  }
+                    {expand ? "Hide" : "Expand"}
                   </Button>
                   {expand && <div className="w-full">
                     <div className="follow_section">
@@ -251,4 +217,4 @@ const Prompt = ({
   );
 };
 
-export default Prompt;
+export default PromptFinish;

@@ -47,6 +47,7 @@ const CollectionCard = (props) => {
   const [symbol, setSymbol] = useState("")
   const initialValues = {
     price: "",
+    endingPrice: "",
     days: "",
     platform,
     token,
@@ -54,7 +55,7 @@ const CollectionCard = (props) => {
     currency: null,
   };
 
-  useEffect(async () => {
+  useEffect(() => {
     if (account) {
       switch (chainId) {
         case 43113: case 43114:
@@ -71,9 +72,13 @@ const CollectionCard = (props) => {
           break;
       }
     }
-  })
+  }, [account, chainId])
   const validationSchema = Yup.object({
     price: Yup.number()
+      .typeError("price must be a number")
+      .min(0, "price must be greater than 20")
+      .required("This field is required"),
+    endingPrice: Yup.number()
       .typeError("price must be a number")
       .min(0, "price must be greater than 20")
       .required("This field is required"),
@@ -85,19 +90,19 @@ const CollectionCard = (props) => {
   });
 
   const onSubmit = async (values, onSubmitProps) => {
-    // return console.log("testing", await getDetailFromId(0))
-    const { currency, platform, token, price, days } = values;
+    return setIsSuccess(true)
+    const { currency, platform, token, price, endingPrice, days } = values;
     setIsModal(false);
     setIsLoading(true);
     setProcessContent(
       "Please allow https://bidify.org permission within your wallet when prompted, there will be a small fee for this…"
     );
     try {
-      await signList({ platform, token, price, days, isERC721 });
+      await signList({ platform, token, isERC721 });
       setProcessContent(
         "Confirm the second transaction to allow your NFT to be listed, there will be another small network fee."
       );
-      await list({ currency, platform, token, price, days, isERC721 });
+      await list({ currency, platform, token, price, endingPrice, days });
       setIsLoading(false);
       setIsSuccess(true);
     } catch (error) {
@@ -132,7 +137,7 @@ const CollectionCard = (props) => {
   const getLogs = async () => {
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
     const topic0 =
-      "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748";
+      "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     let logs = [];
     try {
       if(chainId === 43114 || chainId === 137) {
@@ -149,19 +154,14 @@ const CollectionCard = (props) => {
       console.log(e.message)
     }
 
-
-    let totalLists = 0;
-    for (let log of logs) {
-      totalLists++;
-    }
-
-    return totalLists;
+    return logs.length;
   };
   async function list({
     currency,
     platform,
     token,
     price,
+    endingPrice,
     days,
     allowMarketplace = false,
   }) {
@@ -185,20 +185,22 @@ const CollectionCard = (props) => {
           platform,
           tokenNum.toString(),
           atomic(price.toString(), decimals).toString(),
+          atomic(endingPrice.toString(), decimals).toString(),
           Number(days),
           "0x0000000000000000000000000000000000000000",
           allowMarketplace,
           isERC721
         )
-      const det = await tx.wait()
-      while(await getLogs() === totalCount) {
-        console.log("while loop")
-      }
+      await tx.wait()
+      if(chainId === 137 || chainId === 43114)
+        while(await getLogs() === totalCount) {
+          console.log("while loop")
+        }
       // console.log("listed results", tx, det)
       // const listCnt = await getLogs()
       console.log("total Count")
       const newId = totalCount
-      await delay()
+      // await delay()
       const listingDetail = await getDetailFromId(newId)
       console.log("adding to database", listingDetail)
       await axios.post(`${baseUrl}/auctions`, listingDetail)
@@ -206,13 +208,13 @@ const CollectionCard = (props) => {
       return console.log("list error", error)
     }
   }
-  const delay = async() => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, [3000])
-    })
-  }
+  // const delay = async() => {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       resolve()
+  //     }, [3000])
+  //   })
+  // }
   const getListingDetail = async (id) => {
     const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
     const raw = await bidify.getListing(id.toString())
@@ -228,6 +230,7 @@ const CollectionCard = (props) => {
     let highBidder = nullIfZeroAddress(raw.highBidder);
     let currentBid = raw.price;
     let nextBid = await bidify.getNextBid(id);
+    let endingPrice = raw.endingPrice;
     let decimals = await getDecimals(currency);
     if (currentBid === nextBid) {
       currentBid = null;
@@ -262,6 +265,7 @@ const CollectionCard = (props) => {
       highBidder,
       currentBid,
       nextBid: unatomic(nextBid.toString(), decimals),
+      endingPrice: unatomic(endingPrice.toString(), decimals),
 
       referrer,
       allowMarketplace: raw.allowMarketplace,
@@ -301,6 +305,16 @@ const CollectionCard = (props) => {
           </div>
           <ErrorMessage
             name="price"
+            component="p"
+            className="error_input_msg"
+          />
+          <Text>Buy It Now Price</Text>
+          <div className="form_input">
+            <Field type="number" name="endingPrice" id="endingPrice" />
+            <Text style={{ color: "#F79420" }}>{symbol}</Text>
+          </div>
+          <ErrorMessage
+            name="endingPrice"
             component="p"
             className="error_input_msg"
           />
@@ -413,6 +427,7 @@ const CollectionCard = (props) => {
         successContent={
           "Your NFT has now been listed and will be available to purchase on Bidify and all applicable Bidify powered sites and platforms."
         }
+        name={name}
       />
       <Prompt variant="error" isModal={isError} />
     </>

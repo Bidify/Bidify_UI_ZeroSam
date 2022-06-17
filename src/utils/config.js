@@ -8,17 +8,19 @@ export const snowApi = {
   43114: "Y72B4EMH42SYS5C3RGGIDJM9HPQKYUSUTH",
   137: "XKIRV2YEWTDJIXRQSXB42PT78P1879NTJT"
 }
+
+export const EXPLORER = {
+  1987: "https://blockscout.egem.io"
+}
 export const BIDIFY = {
   address: {
     1: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
     3: "0xd0b5Ad6E34f06278fe0f536660cABc081F3dAc90",
-    4: "0x55Ae9152fc35ab804Ad78d099169499CcF00d02b",  //new deployed contract
-    // 4: "0x683f246253934862b86b042476837a5e9b91e326",
+    4: "0x55Ae9152fc35ab804Ad78d099169499CcF00d02b",
     5: "0xB0a6fc9ab6Ae98B0eCD60d24F79F2504c8389165",
     42: "0xE3Af2cf2729b5fb8339aF5F0aBEd3fbfAE095E47",
-    // 1987: "0xC0678f9CD68A91a348C4fa2B79e1e556FAb8C135" // 1 day contract
-    // 1987: "0xB5e5Ac4829fF769981b10A258A210abe71BdDCa1"    // 10 minutes contract
-    1987: "0xaD83C196cb16793E0bDd22a7Eb157cAd08e9AdeB",    // fixed fees
+    // 1987: "0xaD83C196cb16793E0bDd22a7Eb157cAd08e9AdeB",
+    1987: "0x652e5537EaEF2a4F4BeAF12d9DAA01e951483292", //added buy it now
     43113: "0x3E1E45661B58d1485831AffBD51C2d33258e85Fe",
     43114: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
     137: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
@@ -140,6 +142,12 @@ export const BIDIFY = {
         },
         {
           "indexed": false,
+          "internalType": "uint256",
+          "name": "endingPrice",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
           "internalType": "uint8",
           "name": "timeInDays",
           "type": "uint8"
@@ -176,25 +184,6 @@ export const BIDIFY = {
     {
       "stateMutability": "payable",
       "type": "fallback"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "balanceOf",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
     },
     {
       "inputs": [
@@ -267,6 +256,11 @@ export const BIDIFY = {
             {
               "internalType": "uint256",
               "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "endingPrice",
               "type": "uint256"
             },
             {
@@ -374,6 +368,11 @@ export const BIDIFY = {
           "type": "uint256"
         },
         {
+          "internalType": "uint256",
+          "name": "endingPrice",
+          "type": "uint256"
+        },
+        {
           "internalType": "uint8",
           "name": "timeInDays",
           "type": "uint8"
@@ -397,9 +396,9 @@ export const BIDIFY = {
       "name": "list",
       "outputs": [
         {
-          "internalType": "uint64",
+          "internalType": "uint256",
           "name": "",
-          "type": "uint64"
+          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
@@ -599,19 +598,6 @@ export const BIDIFY = {
         }
       ],
       "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "withdraw",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

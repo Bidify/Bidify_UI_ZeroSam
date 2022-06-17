@@ -111,6 +111,7 @@ const LiveAuction = () => {
     let highBidder = nullIfZeroAddress(raw.highBidder);
     let currentBid = raw.price;
     let nextBid = await bidify.getNextBid(id.toString());
+    let endingPrice = raw.endingPrice;
     let decimals = await getDecimals(currency);
     // console.log("compareing", currentBid.toString() === nextBid.toString(), currentBid, nextBid)
     if (currentBid.toString() === nextBid.toString()) {
@@ -147,6 +148,7 @@ const LiveAuction = () => {
       highBidder,
       currentBid,
       nextBid: unatomic(nextBid.toString(), decimals),
+      endingPrice: unatomic(endingPrice.toString(), decimals),
 
       referrer,
       allowMarketplace: raw.allowMarketplace,
@@ -163,7 +165,7 @@ const LiveAuction = () => {
   const getLogs = async () => {
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
     const topic0 =
-      "0xb8160cd5a5d5f01ed9352faa7324b9df403f9c15c1ed9ba8cb8ee8ddbd50b748";
+      "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     let logs = [];
     try {
       if(chainId === 43114 || chainId === 137) {
@@ -180,12 +182,12 @@ const LiveAuction = () => {
       console.log(e.message)
     }
 
-    let totalLists = 0;
-    for (let log of logs) {
-      totalLists++;
-    }
+    // let totalLists = 0;
+    // for (let log of logs) {
+    //   totalLists++;
+    // }
 
-    return totalLists;
+    return logs.length;
   };
 
   const getFetchValues = async (val) => {
@@ -252,7 +254,7 @@ const LiveAuction = () => {
     }
 
     function imageurl(url) {
-      const string = url;
+      // const string = url;
       const check = url.substr(16, 4);
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
@@ -322,6 +324,7 @@ const LiveAuction = () => {
   const handleUpdate = async () => {
     if (update.length === 0) return
     const res = await axios.post(`${baseUrl}/admin`, update)
+    return res
   }
   const renderCards = (
     <>
