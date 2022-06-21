@@ -2,7 +2,8 @@ export const baseUrl = "https://api.bidify.org/api"
 // export const baseUrl = "http://localhost:8080/api"
 export const getLogUrl = {
   137: "https://api.polygonscan.com/api?module=logs&action=getLogs",
-  43114: "https://api.snowtrace.io/api?module=logs&action=getLogs"
+  43114: "https://api.snowtrace.io/api?module=logs&action=getLogs",
+  1987: "https://blockscout.egem.io/api?module=logs&action=getLogs"
 }
 export const snowApi = {
   43114: "Y72B4EMH42SYS5C3RGGIDJM9HPQKYUSUTH",
@@ -10,13 +11,14 @@ export const snowApi = {
 }
 
 export const EXPLORER = {
-  1987: "https://blockscout.egem.io"
+  1987: "https://blockscout.egem.io",
+  4: "https://rinkeby.etherscan.io"
 }
 export const BIDIFY = {
   address: {
     1: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
     3: "0xd0b5Ad6E34f06278fe0f536660cABc081F3dAc90",
-    4: "0x55Ae9152fc35ab804Ad78d099169499CcF00d02b",
+    4: "0xfe608404717107FA4619fDd2d09c9Cb67ADAa74c",
     5: "0xB0a6fc9ab6Ae98B0eCD60d24F79F2504c8389165",
     42: "0xE3Af2cf2729b5fb8339aF5F0aBEd3fbfAE095E47",
     // 1987: "0xaD83C196cb16793E0bDd22a7Eb157cAd08e9AdeB",
@@ -26,7 +28,7 @@ export const BIDIFY = {
     137: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
     80001: "0x0b3A202C14595b67c3E98c27C636e7f3853Cafa3",
   },
-  "abi": [
+  abi: [
     {
       "inputs": [],
       "stateMutability": "nonpayable",
@@ -96,6 +98,12 @@ export const BIDIFY = {
           "internalType": "uint256",
           "name": "price",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "referrer",
+          "type": "address"
         }
       ],
       "name": "Bid",
@@ -155,7 +163,7 @@ export const BIDIFY = {
         {
           "indexed": false,
           "internalType": "address",
-          "name": "referrer",
+          "name": "lister",
           "type": "address"
         }
       ],
@@ -194,7 +202,7 @@ export const BIDIFY = {
         },
         {
           "internalType": "address",
-          "name": "marketplace",
+          "name": "referrer",
           "type": "address"
         },
         {
@@ -269,13 +277,8 @@ export const BIDIFY = {
               "type": "address"
             },
             {
-              "internalType": "bool",
-              "name": "allowMarketplace",
-              "type": "bool"
-            },
-            {
               "internalType": "address",
-              "name": "marketplace",
+              "name": "lister",
               "type": "address"
             },
             {
@@ -378,19 +381,14 @@ export const BIDIFY = {
           "type": "uint8"
         },
         {
-          "internalType": "address",
-          "name": "referrer",
-          "type": "address"
-        },
-        {
-          "internalType": "bool",
-          "name": "allowMarketplace",
-          "type": "bool"
-        },
-        {
           "internalType": "bool",
           "name": "isERC721",
           "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "lister",
+          "type": "address"
         }
       ],
       "name": "list",

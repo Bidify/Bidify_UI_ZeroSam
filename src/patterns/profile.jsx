@@ -27,12 +27,12 @@ import { useEffect } from "react";
 import { injected } from "../utils/connector";
 
 const upcomingFeatures = [
-  "Bidify Tutorials – Q4 2021",
-  "Bidify Token 		– Q4 2021",
-  "Bidify User Airdrop	– Q1 2022",
-  "Discord/Telegram/Facebook Applications	-Q1 2022",
-  "Bidify DAO		– Q2 2022",
-  "Mobile Application 	– Q2 2022",
+  "Bidify Tutorials",
+  "Bidify Token",
+  "Bidify User Airdrop",
+  "Discord/Telegram/Facebook Applications",
+  "Bidify DAO",
+  "Mobile Application",
 ];
 
 const networkData = [

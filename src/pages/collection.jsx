@@ -237,7 +237,7 @@ const Collection = () => {
     // Get all transfers to us
     // return console.log(web3.eth)
     else logs = await web3.eth.getPastLogs({
-      fromBlock: 1,
+      fromBlock: 0,
       toBlock: "latest",
       topics: [
         "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
@@ -249,7 +249,6 @@ const Collection = () => {
     }).catch(e => {
       console.log("error on getpastlogs", e.message)
     });
-    console.log("res", logs)
     // Filter to just tokens which are still in our custody
     const res = [];
     const ids = {};

@@ -29,7 +29,7 @@ import { ethers } from "ethers"
 import PromptFinish from "./promptFinish";
 
 const Card = (props) => {
-  const { name, creator, image, currentBid, endTime, id, currency, getLists, highBidder, getFetchValues } =
+  const { name, creator, image, currentBid, endTime, id, currency, getLists, highBidder, getFetchValues, endingPrice } =
     props;
   // console.log(props)
   const { account, chainId, library } = useWeb3React();
@@ -45,6 +45,8 @@ const Card = (props) => {
   const [errorMessage, setErrorMessage] = useState();
   const [isVideo, setIsVideo] = useState(false);
   const [symbol, setSymbol] = useState('');
+  const [transaction, setTransaction] = useState()
+  const [latestDetail, setLatestDetail] = useState(props)
 
   // useEffect(() => {
   //   if (isSuccess) getLists();
@@ -107,9 +109,7 @@ const Card = (props) => {
   };
 
   const handleBidMethod = async (amount) => {
-    // const updateData = await getDetailFromId(id);
-    // await axios.put(`${baseUrl}/auctions/${id}`, updateData)
-    // return;
+    // return console.log(id, "0x0000000000000000000000000000000000000000", atomic(amount, 18).toString())
     setIsModal(false);
     setIsLoading(true);
     setProcessContent(
@@ -126,9 +126,11 @@ const Card = (props) => {
       }
       console.log("out of loop")
       const updateData = await getDetailFromId(id);
+      setLatestDetail(updateData)
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
-      setIsSuccess(true);
+      if(amount >= endingPrice) setIsFinished(true)
+      else setIsSuccess(true);
     } catch (error) {
       console.log(error);
       if (error === "low_balance") {
@@ -168,7 +170,8 @@ const Card = (props) => {
           from: from,
           value: atomic(amount, decimals).toString(),
         })
-      await tx.wait()
+      const ret = await tx.wait()
+      setTransaction(ret)
     }
   }
   const signBid = async (id, amount) => {
@@ -420,10 +423,11 @@ const Card = (props) => {
         variant="success"
         isModal={isFinished}
         handleAbort={handleAbort}
-        highBidder={highBidder}
-        seller={creator}
+        highBidder={latestDetail.highBidder}
+        seller={latestDetail.creator}
         chainId={chainId}
-        name={name}
+        name={latestDetail.name}
+        transaction={transaction}
       />
       <Prompt variant="error" isModal={isError} errorMessage={errorMessage} />
     </>

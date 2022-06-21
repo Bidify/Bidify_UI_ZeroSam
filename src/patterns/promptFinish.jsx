@@ -49,7 +49,8 @@ const PromptFinish = ({
   highBidder,
   seller,
   chainId,
-  name
+  name,
+  transaction
 }) => {
   const renderTitle = () => {
         return "Transaction Complete";
@@ -150,21 +151,21 @@ const PromptFinish = ({
               <div className="social_panel">
                 <div className="social_icons">
                   <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=https://app.bidify.org&quote=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${EXPLORER[chainId]}/tx/${transaction.transactionHash}&quote=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={facebook} alt="facebook" />
                   </a>
                   <a
-                    href={`https://t.me/share/url?url=https://app.bidify.org&text=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://t.me/share/url?url=${EXPLORER[chainId]}/tx/${transaction.transactionHash}&text=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={telegram} alt="telegram" />
                   </a>
                   <a
-                    href={`https://twitter.com/intent/tweet?url=https://app.bidify.org&text=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://twitter.com/intent/tweet?url=${EXPLORER[chainId]}/tx/${transaction.transactionHash}&text=We%20have%20just%20completed%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

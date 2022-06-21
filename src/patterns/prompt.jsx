@@ -23,6 +23,7 @@ import telegram from "../assets/icons/telegram.svg";
 import twitter from "../assets/icons/twitter.svg";
 import youtube from "../assets/icons/youtube.svg";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
+import { EXPLORER } from "../utils/config";
 
 const postUrl = `https://cryptosi.us2.list-manage.com/subscribe/post?u=${process.env.REACT_APP_MAILCHIMP_U}&id=${process.env.REACT_APP_MAILCHIMP_ID}`;
 
@@ -52,7 +53,9 @@ const Prompt = ({
   processContent,
   successContent = "",
   handleAbort,
-  name = ""
+  name = "",
+  transaction = null,
+  chainId
 }) => {
   const renderTitle = () => {
     switch (variant) {
@@ -178,23 +181,23 @@ const Prompt = ({
             </div>
             {variant === "success" && (
               <div className="social_panel">
-                {name !== "" && <div className="social_icons">
+                {name !== "" && transaction !== null && <div className="social_icons">
                   <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=https://app.bidify.org&quote=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${EXPLORER[chainId]}/tx/${transaction.transactionHash}&quote=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={facebook} alt="facebook" />
                   </a>
                   <a
-                    href={`https://t.me/share/url?url=https://app.bidify.org&text=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://t.me/share/url?url=${EXPLORER[chainId]}/tx/${transaction.transactionHash}&text=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img src={telegram} alt="telegram" />
                   </a>
                   <a
-                    href={`https://twitter.com/intent/tweet?url=https://app.bidify.org&text=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
+                    href={`https://twitter.com/intent/tweet?url=${EXPLORER[chainId]}/tx/${transaction.transactionHash}&text=We%20have%20just%20started%20this%20auction%20for%20"${name}"%20via%20app.bidify.org`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

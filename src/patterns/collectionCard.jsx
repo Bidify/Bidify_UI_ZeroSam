@@ -37,6 +37,7 @@ const CollectionCard = (props) => {
   // const account = '0x0B172a4E265AcF4c2E0aB238F63A44bf29bBd158'
 
   const [processContent, setProcessContent] = useState("");
+  const [transaction, setTransaction] = useState();
 
   const [isVideo, setIsVideo] = useState(false);
   const [isModal, setIsModal] = useState(false);
@@ -46,8 +47,8 @@ const CollectionCard = (props) => {
   const [isPlay, setIsPlay] = useState(false);
   const [symbol, setSymbol] = useState("")
   const initialValues = {
-    price: "",
-    endingPrice: "",
+    price: "0",
+    endingPrice: "0",
     days: "",
     platform,
     token,
@@ -76,11 +77,10 @@ const CollectionCard = (props) => {
   const validationSchema = Yup.object({
     price: Yup.number()
       .typeError("price must be a number")
-      .min(0, "price must be greater than 20")
+      .min(0.000001, "price must be greater than 0")
       .required("This field is required"),
     endingPrice: Yup.number()
       .typeError("price must be a number")
-      .min(0, "price must be greater than 20")
       .required("This field is required"),
     days: Yup.number()
       .typeError("days must be a number")
@@ -90,8 +90,9 @@ const CollectionCard = (props) => {
   });
 
   const onSubmit = async (values, onSubmitProps) => {
-    return setIsSuccess(true)
+    // return setIsSuccess(true)
     const { currency, platform, token, price, endingPrice, days } = values;
+    // return console.log(atomic(price.toString(), 18).toString(), atomic(endingPrice.toString(), 18).toString(),)
     setIsModal(false);
     setIsLoading(true);
     setProcessContent(
@@ -163,7 +164,6 @@ const CollectionCard = (props) => {
     price,
     endingPrice,
     days,
-    allowMarketplace = false,
   }) {
     let decimals = await getDecimals(currency);
     if (!currency) {
@@ -187,11 +187,12 @@ const CollectionCard = (props) => {
           atomic(price.toString(), decimals).toString(),
           atomic(endingPrice.toString(), decimals).toString(),
           Number(days),
+          isERC721,
           "0x0000000000000000000000000000000000000000",
-          allowMarketplace,
-          isERC721
         )
-      await tx.wait()
+      const ret = await tx.wait()
+      // console.log("transaction", ret)
+      setTransaction(ret)
       if(chainId === 137 || chainId === 43114)
         while(await getLogs() === totalCount) {
           console.log("while loop")
@@ -428,6 +429,8 @@ const CollectionCard = (props) => {
           "Your NFT has now been listed and will be available to purchase on Bidify and all applicable Bidify powered sites and platforms."
         }
         name={name}
+        transaction={transaction}
+        chainId={chainId}
       />
       <Prompt variant="error" isModal={isError} />
     </>

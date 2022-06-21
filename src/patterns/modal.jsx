@@ -159,7 +159,7 @@ export const LiveAuctionModal = (props) => {
       </div>
       <Text>Buy it now price</Text>
       <div className="form_input">
-        <section>{endingPrice}</section>
+        <section>{endingPrice !== '0' ? endingPrice : "N/A"}</section>
         <Text style={{ color: "#F79420" }}>{symbol}</Text>
       </div>
       <Text>Your bid</Text>
