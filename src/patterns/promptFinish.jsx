@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 //IMPORTING STYLESHEET
@@ -20,6 +20,7 @@ import youtube from "../assets/icons/youtube.svg";
 import telegram from "../assets/icons/telegram.svg";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
 import { EXPLORER } from "../utils/config";
+import { CustomConfetti } from "./Confetti";
 
 const postUrl = `https://cryptosi.us2.list-manage.com/subscribe/post?u=${process.env.REACT_APP_MAILCHIMP_U}&id=${process.env.REACT_APP_MAILCHIMP_ID}`;
 
@@ -52,6 +53,17 @@ const PromptFinish = ({
   name,
   transaction
 }) => {
+  const [showConfetti, setShowConfetti] = useState(true)
+  // console.log('showConfetti', showConfetti)
+  useEffect(() => {
+    if(isModal && variant === 'success'){
+      // console.log("mounted prompt", isModal, variant)
+      return setTimeout(() => {
+        setShowConfetti(false)
+      }, 5000)
+    }
+  }, [isModal, variant])
+  // if(variant === "success" && isModal === true) console.log("mounted prompt ==============")
   const renderTitle = () => {
         return "Transaction Complete";
   };
@@ -214,6 +226,7 @@ const PromptFinish = ({
           </motion.div>
         </motion.div>
       )}
+      {variant === 'success' && showConfetti && isModal && <CustomConfetti />}
     </AnimatePresence>
   );
 };

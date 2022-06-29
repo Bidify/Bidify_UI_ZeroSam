@@ -68,13 +68,13 @@ const Collection = () => {
     // console.log("before updateing", results, results.length)
     console.log("updating database")
     const newData = await getDetails()
-    console.log("updated database")
+    console.log("updated database", newData)
     // console.log("comparing", newData, newData.length)
     // if(newData.length === )
     // const dataToAdd = newData.filter(nft => results.includes(nft))
     // const dataToRemove = results.filter(nft => newData.includes(nft))
     // console.log(dataToAdd, dataToRemove)
-    await axios.put(`${baseUrl}/admincollection`, newData)
+    await axios.put(`${baseUrl}/admincollection`, {data: newData, chainId, owner: account})
     // if(dataToAdd.length) await axios.post(`${baseUrl}/admincollection`, dataToAdd)
     // if(dataToRemove.length) await axios.delete(`${baseUrl}/admincollection`, dataToRemove)
   }
@@ -180,11 +180,13 @@ const Collection = () => {
       },
     });
     const result = await fetchWrapper.fetchNft(val?.platform, val?.token);
+    // console.log("result", result)
     const finalResult = {
       ...result,
       platform: val?.platform,
       token: val?.token,
       isERC721: result.owner ? true : false,
+      owner: result.owner ? result.owner : account
     };
     return finalResult;
   };
@@ -202,7 +204,7 @@ const Collection = () => {
     } catch (e) {
       console.log(e.message)
     }
-    console.log("passed get nfts", getNft)
+    // console.log("passed get nfts", getNft)
     for (var i = 0; i < getNft?.length; i++) {
       try {
         const res = await getFetchValues(getNft[i]);
@@ -299,6 +301,7 @@ const Collection = () => {
         let owner = await new web3.eth.Contract(ERC1155.abi, platform).methods
           .balanceOf(from, decodeData[0])
           .call();
+        // console.log("owners", owner, platform)
         if (owner < 1) continue;
         // if (owner.toLowerCase() !== from.toLowerCase()) {
         //   continue;

@@ -12,7 +12,8 @@ export const snowApi = {
 
 export const EXPLORER = {
   1987: "https://blockscout.egem.io",
-  4: "https://rinkeby.etherscan.io"
+  4: "https://rinkeby.etherscan.io",
+  137: "https://polygonscan.com"
 }
 export const BIDIFY = {
   address: {
@@ -25,7 +26,7 @@ export const BIDIFY = {
     1987: "0x652e5537EaEF2a4F4BeAF12d9DAA01e951483292", //added buy it now
     43113: "0x3E1E45661B58d1485831AffBD51C2d33258e85Fe",
     43114: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
-    137: "0x86E25f1e266eA4831b3CBb68164753DcbA30D047",
+    137: "0x2FccEd65EeC83Bf2790bBc046013e13d6498038C",
     80001: "0x0b3A202C14595b67c3E98c27C636e7f3853Cafa3",
   },
   abi: [

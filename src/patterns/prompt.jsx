@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 //IMPORTING STYLESHEET
@@ -24,6 +24,7 @@ import twitter from "../assets/icons/twitter.svg";
 import youtube from "../assets/icons/youtube.svg";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
 import { EXPLORER } from "../utils/config";
+import { CustomConfetti } from "./Confetti";
 
 const postUrl = `https://cryptosi.us2.list-manage.com/subscribe/post?u=${process.env.REACT_APP_MAILCHIMP_U}&id=${process.env.REACT_APP_MAILCHIMP_ID}`;
 
@@ -57,6 +58,17 @@ const Prompt = ({
   transaction = null,
   chainId
 }) => {
+  const [showConfetti, setShowConfetti] = useState(true)
+  // console.log('showConfetti', showConfetti)
+  useEffect(() => {
+    if(isModal && variant === 'success'){
+      // console.log("mounted prompt", isModal, variant)
+      return setTimeout(() => {
+        setShowConfetti(false)
+      }, 5000)
+    }
+  }, [isModal, variant])
+  // if(variant === "success" && isModal === true) console.log("mounted prompt ==============")
   const renderTitle = () => {
     switch (variant) {
       case "success":
@@ -159,7 +171,7 @@ const Prompt = ({
             animate="visible"
             exit="exit"
           >
-            {variant === "success" && <Button variant="btn_close secondary" type="button" onClick={handleAbort}>
+            {variant === "success" && <Button style={{ zIndex: 9999 }} variant="btn_close secondary" type="button" onClick={handleAbort}>
               <svg className="square-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
             </Button>}
             <div className="image">
@@ -250,6 +262,7 @@ const Prompt = ({
           </motion.div>
         </motion.div>
       )}
+      {variant === 'success' && showConfetti && isModal && <CustomConfetti />}
     </AnimatePresence>
   );
 };

@@ -90,7 +90,9 @@ const CollectionCard = (props) => {
   });
 
   const onSubmit = async (values, onSubmitProps) => {
-    // return setIsSuccess(true)
+    // return setTimeout(() => {
+    //   setIsSuccess(true)
+    // }, 10000)
     const { currency, platform, token, price, endingPrice, days } = values;
     // return console.log(atomic(price.toString(), 18).toString(), atomic(endingPrice.toString(), 18).toString(),)
     setIsModal(false);
@@ -199,7 +201,7 @@ const CollectionCard = (props) => {
         }
       // console.log("listed results", tx, det)
       // const listCnt = await getLogs()
-      console.log("total Count")
+      console.log("total Count", totalCount)
       const newId = totalCount
       // await delay()
       const listingDetail = await getDetailFromId(newId)
@@ -209,16 +211,14 @@ const CollectionCard = (props) => {
       return console.log("list error", error)
     }
   }
-  // const delay = async() => {
-  //   return new Promise((resolve) => {
-  //     setTimeout(() => {
-  //       resolve()
-  //     }, [3000])
-  //   })
-  // }
+  
   const getListingDetail = async (id) => {
     const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
-    const raw = await bidify.getListing(id.toString())
+    let raw = await bidify.getListing(id.toString())
+    while(raw.creator === "0x0000000000000000000000000000000000000000") {
+      raw = await bidify.getListing(id.toString())
+    }
+    console.log("raw", raw)
     const nullIfZeroAddress = (value) => {
       if (value === "0x0000000000000000000000000000000000000000") {
         return null;
@@ -247,6 +247,7 @@ const CollectionCard = (props) => {
     const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
     const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
     const logs = ret.data.result
+    console.log("bid logs", logs)
     for (let bid of logs) {
       bids.push({
         bidder: "0x" + bid.topics[2].substr(-40),
@@ -256,6 +257,28 @@ const CollectionCard = (props) => {
         ),
       });
     }
+    console.log("get detail =========>", {
+      id,
+      creator: raw.creator,
+      currency,
+      platform: raw.platform,
+      token: raw.token.toString(),
+
+      highBidder,
+      currentBid,
+      nextBid: unatomic(nextBid.toString(), decimals),
+      endingPrice: unatomic(endingPrice.toString(), decimals),
+
+      referrer,
+      allowMarketplace: raw.allowMarketplace,
+      marketplace,
+
+      endTime: raw.endTime.toString(),
+      paidOut: raw.paidOut,
+      isERC721: raw.isERC721,
+
+      bids,
+    })
     return {
       id,
       creator: raw.creator,
