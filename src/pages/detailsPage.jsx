@@ -7,7 +7,7 @@ import Countdown from "react-countdown";
 import { useWeb3React } from "@web3-react/core";
 import { ethers, Contract } from "ethers";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { getSymbol } from "../utils/getCurrencySymbol";
+import { getTokenSymbol } from "../utils/getCurrencySymbol";
 import "react-lazy-load-image-component/src/effects/blur.css";
 //STYLESHEET
 
@@ -62,12 +62,14 @@ const DetailsPage = () => {
     // setParamId(id);
     // getLists(id);
     getData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const getData = async () => {
     const response = await axios.get(`${baseUrl}/auctions/${id}`)
     console.log(response.data)
     setData([response.data])
   }
+  // eslint-disable-next-line no-unused-vars
   const getLists = async (id) => {
     //setData();
     //const Bidify = new web3.eth.Contract(BIDIFY.abi, BIDIFY.address);
@@ -162,6 +164,7 @@ const DetailsPage = () => {
     function imageurl(url) {
       // const string = url;
       const check = url.substr(16, 4);
+      if(url.includes('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/')
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
         return "https://dweb.link/" + manipulated;
@@ -186,7 +189,7 @@ const DetailsPage = () => {
       },
     });
     const result = await fetchWrapper.fetchNft(val?.platform, val?.token);
-    const res = await getSymbol(val.currency);
+    const res = await getTokenSymbol(val.currency);
     const finalResult = {
       ...result,
       platform: val?.platform,

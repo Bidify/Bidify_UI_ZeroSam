@@ -33,6 +33,7 @@ const MyBiddings = () => {
 
   useEffect(() => {
     if (!userState?.isLiveAuctionFetched) getLists();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, chainId, userState]);
 
   const getLists = async () => {
@@ -128,6 +129,7 @@ const MyBiddings = () => {
     function imageurl(url) {
       // const string = url;
       const check = url.substr(16, 4);
+      if(url.includes('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/')
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
         return "https://dweb.link/" + manipulated;

@@ -62,6 +62,7 @@ const PromptFinish = ({
         setShowConfetti(false)
       }, 5000)
     }
+    else setShowConfetti(true)
   }, [isModal, variant])
   // if(variant === "success" && isModal === true) console.log("mounted prompt ==============")
   const renderTitle = () => {

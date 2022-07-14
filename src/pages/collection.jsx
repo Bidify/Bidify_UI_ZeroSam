@@ -68,13 +68,13 @@ const Collection = () => {
     // console.log("before updateing", results, results.length)
     console.log("updating database")
     const newData = await getDetails()
-    console.log("updated database", newData)
+    console.log("updated database")
     // console.log("comparing", newData, newData.length)
     // if(newData.length === )
     // const dataToAdd = newData.filter(nft => results.includes(nft))
     // const dataToRemove = results.filter(nft => newData.includes(nft))
     // console.log(dataToAdd, dataToRemove)
-    await axios.put(`${baseUrl}/admincollection`, {data: newData, chainId, owner: account})
+    await axios.put(`${baseUrl}/admincollection`, { data: newData, chainId, owner: account })
     // if(dataToAdd.length) await axios.post(`${baseUrl}/admincollection`, dataToAdd)
     // if(dataToRemove.length) await axios.delete(`${baseUrl}/admincollection`, dataToRemove)
   }
@@ -85,6 +85,7 @@ const Collection = () => {
     } else {
       console.log("connect wallet to view collections");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, chainId]);
 
   // const account = "0x0B172a4E265AcF4c2E0aB238F63A44bf29bBd158";
@@ -98,44 +99,14 @@ const Collection = () => {
           "0c8149f8e63b4b818d441dd7f74ab618"
         );
         break;
-      case 3:
-        provider = new ethers.providers.InfuraProvider(
-          "ropsten",
-          "0c8149f8e63b4b818d441dd7f74ab618"
-        );
-        break;
       case 4:
         provider = new ethers.providers.InfuraProvider(
           "rinkeby",
           "0c8149f8e63b4b818d441dd7f74ab618"
         );
         break;
-      case 5:
-        provider = new ethers.providers.InfuraProvider(
-          "goerli",
-          "0c8149f8e63b4b818d441dd7f74ab618"
-        );
-        break;
-      case 42:
-        provider = new ethers.providers.InfuraProvider(
-          "kovan",
-          "0c8149f8e63b4b818d441dd7f74ab618"
-        );
-        break;
-      case 1987:
-        provider = new ethers.providers.JsonRpcProvider("https://lb.rpc.egem.io")
-        break;
-      case 43113:
-        provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc")
-        break;
-      case 43114:
-        provider = new ethers.providers.JsonRpcProvider("https://api.avax.network/ext/bc/C/rpc")
-        break;
-      case 80001:
-        provider = new ethers.providers.JsonRpcProvider("https://matic-testnet-archive-rpc.bwarelabs.com")
-        break;
-      case 137:
-        provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com")
+      case 1987: case 43114: case 137: case 56: case 9001: case 1285: case 61: case 100:
+        provider = new ethers.providers.JsonRpcProvider(URLS[chainId])
         break;
       default:
         console.log("select valid chain");
@@ -156,6 +127,7 @@ const Collection = () => {
     function imageurl(url) {
       // const string = url;
       const check = url.substr(16, 4);
+      if(url.includes('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/')
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
         return "https://dweb.link/" + manipulated;
@@ -199,21 +171,59 @@ const Collection = () => {
     let getNft;
 
     let results = [];
-    try {
-      getNft = await getNFTs();
-    } catch (e) {
-      console.log(e.message)
-    }
-    // console.log("passed get nfts", getNft)
-    for (var i = 0; i < getNft?.length; i++) {
+    if (chainId === 137) {
       try {
-        const res = await getFetchValues(getNft[i]);
-        results.push(res);
-      } catch (error) {
-        console.log(error)
+        const response = await axios.get("https://api.nftport.xyz/v0/accounts/0x484D53603331e4030439c3C58f51f9d433Df1F39?chain=polygon&page_size=50&include=metadata", {
+          headers: {
+            Authorization: 'e2027ff8-0b63-4800-9429-fdfe627a8f63'
+          }
+        })
+        const nfts = response.data.nfts
+        for (let i = 0; i < nfts.length; i++) {
+          const nft = nfts[i]
+          if (nft.name) {
+            let imageUrl;
+            if (nft.cached_file_url) imageUrl = nft.cached_file_url
+            else {
+              if (nft.file_url.includes('ipfs://')) imageUrl = nft.file_url.replace('ipfs://', 'https://ipfs.io/ipfs/')
+              else imageUrl = nft.file_url
+            }
+            results.push({
+              description: nft.description,
+              image: imageUrl,
+              isERC721: true,
+              metadataUrl: nft.metadata_url,
+              name: nft.name,
+              network: 137,
+              owner: account,
+              platform: nft.contract_address,
+              token: nft.token_id
+            })
+          } else {
+            const res = await getFetchValues({ platform: nft.contract_address, token: nft.token_id});
+            results.push(res);
+          }
+        }
+      } catch (e) {
+        console.log(e.message)
+      }
+      console.log(results)
+    } else {
+      try {
+        getNft = await getNFTs();
+      } catch (e) {
+        console.log(e.message)
+      }
+      // console.log("passed get nfts", getNft)
+      for (var i = 0; i < getNft?.length; i++) {
+        try {
+          const res = await getFetchValues(getNft[i]);
+          results.push(res);
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
-    // console.log(results)
     // setUpdate(results.map(item => { return { ...item, network: chainId } }))
     userDispatch({
       type: "MY_COLLECTIONS",
@@ -230,9 +240,9 @@ const Collection = () => {
     const topic = "0x" + from.split("0x")[1].padStart(64, "0")
     let logs = []
     let logs_1155 = []
-    if(chainId === 43114 || chainId === 137) {
-      const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&topic0_2_opr=and&topic2=${topic}&apikey=${snowApi[chainId]}`).catch(e => console.log("getNft error"))
-      // return console.log("return value", ret.data.result)
+    if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
+      const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 || chainId === 100 ? 'toBlock=latest&' : ''}topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&topic0_2_opr=and&topic2=${chainId === 9001 || chainId === 100 ? topic.toLowerCase() : topic}&apikey=${snowApi[chainId]}`).catch(e => console.log("getNft error"))
+      // return console.log("return value", ret)
       logs = ret.data.result
     }
 
@@ -255,6 +265,7 @@ const Collection = () => {
     const res = [];
     const ids = {};
     for (let log of logs) {
+      // console.log(log)
       if (log.topics[3] !== undefined) {
         let platform = log.address;
         let token = log.topics[3];
@@ -277,8 +288,8 @@ const Collection = () => {
         continue;
       }
     }
-    if(chainId === 43114 || chainId === 137) {
-      const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62&topic0_3_opr=and&topic3=${topic}&apikey=${snowApi[chainId]}`)
+    if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
+      const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 || chainId === 100 ? 'toBlock=latest&' : ''}topic0=0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62&topic0_3_opr=and&topic3=${chainId === 9001 || chainId === 100 ? topic.toLowerCase() : topic}&apikey=${snowApi[chainId]}`)
       logs_1155 = ret.data.result
     }
     else logs_1155 = await web3.eth.getPastLogs({
@@ -319,6 +330,7 @@ const Collection = () => {
         continue;
       }
     }
+    // console.log(res)
     return res;
   }
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 //IMPORTING STYLESHEET
@@ -144,7 +144,9 @@ export const LiveAuctionModal = (props) => {
       />
     </div>
   );
-
+  useEffect(() => {
+    setYourBid(nextBid)
+  }, [nextBid])
   const renderForm = (
     <div className="create_form">
       <Text>Current bid</Text>

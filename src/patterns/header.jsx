@@ -11,11 +11,6 @@ import { Text } from "../components";
 
 //IMPORTING MEDIA ASSETS
 
-import logo from "../assets/logo/bidifylogo.png";
-import logo_egem from "../assets/logo/bidifylogo_egem.png";
-import logo_avax from "../assets/logo/bidifylogo_avax.png";
-import logo_matic from "../assets/logo/bidifylogo_matic.png";
-
 import search from "../assets/icons/search.svg";
 import hamburger from "../assets/icons/hamburger.svg";
 import outline_close from "../assets/icons/outline_close.svg";
@@ -24,10 +19,11 @@ import outline_close from "../assets/icons/outline_close.svg";
 
 import { UserContext } from "../store/contexts";
 import { useWeb3React } from "@web3-react/core";
+import { NetworkData, getSymbol } from "../utils/config";
 
 const Header = ({ title, description }) => {
   //INITIALIZING HOOKS
-  const { chainId } = useWeb3React();
+  const { account, chainId } = useWeb3React();
   const { userState, userDispatch } = useContext(UserContext);
 
   const searchRef = useRef();
@@ -36,6 +32,7 @@ const Header = ({ title, description }) => {
     userDispatch({
       type: "RESET",
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // HANDLING SEARCH METHOD
@@ -54,8 +51,8 @@ const Header = ({ title, description }) => {
       }
     >
       <Link to="/" className="logo">
-        <img src={chainId === 1987 ? logo_egem : chainId === 43114 ? logo_avax : (chainId === 137 || chainId === 80001) ? logo_matic : logo} alt="logo" width={48} />
-        <Text variant="primary">{chainId === 1987 ? "EGEM" : chainId === 43114 ? "AVAX" : (chainId === 137 || chainId === 80001) ? "MATIC" : "ETH"}</Text>
+        <img src={NetworkData[(account ? chainId : 4)].logo} alt="logo" width={48} />
+        <Text variant="primary">{getSymbol(chainId)}</Text>
       </Link>
       <div className="content">
         <Text variant="primary">{title}</Text>

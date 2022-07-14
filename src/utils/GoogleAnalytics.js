@@ -57,8 +57,10 @@ const init = (options = {}) => {
     return isGAEnabled;
 };
 
-export default {
+const GA = {
     GoogleAnalytics,
     RouteTracker,
     init
 };
+
+export default GA;

@@ -1,7 +1,7 @@
 import Confetti from "react-confetti"
 
 export const CustomConfetti = () => {
-  console.log("confetti mounted")
+  // console.log("confetti mounted")
   return(
     <div 
       style={{

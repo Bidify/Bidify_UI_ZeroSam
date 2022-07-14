@@ -19,14 +19,15 @@ const ScreenTemplate = ({ children }) => {
     if (chainId) {
       if (
         chainId === 4 ||
-        chainId === 5 ||
-        chainId === 42 ||
-        chainId === 3 ||
         chainId === 1 ||
         chainId === 1987 ||
         chainId === 43114 ||
-        chainId === 80001 ||
-        chainId === 137
+        chainId === 137 ||
+        chainId === 9001 ||
+        chainId === 1285 ||
+        chainId === 61 ||
+        chainId === 100 ||
+        chainId === 56
       ) {
         setWrongNetwork(false);
       } else setWrongNetwork(true);

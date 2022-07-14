@@ -21,17 +21,16 @@ import lock from "../assets/icons/lock.svg";
 //IMPORTING UTILITY PACKGAES
 
 import { getListing, getDecimals, unatomic, atomic } from "../utils/Bidify";
-import { getSymbol } from "../utils/getCurrencySymbol";
+import { getTokenSymbol } from "../utils/getCurrencySymbol";
 import Web3 from "web3";
-import { baseUrl, BIDIFY, BIT, snowApi, getLogUrl } from "../utils/config";
+import { baseUrl, BIDIFY, BIT, snowApi, getLogUrl, getSymbol } from "../utils/config";
 import axios from "axios";
 import { ethers } from "ethers"
 import PromptFinish from "./promptFinish";
 
 const Card = (props) => {
-  const { name, creator, image, currentBid, endTime, id, currency, getLists, highBidder, getFetchValues, endingPrice } =
+  const { name, creator, image, currentBid, nextBid, endTime, id, currency, getLists, highBidder, getFetchValues, endingPrice } =
     props;
-  // console.log(props)
   const { account, chainId, library } = useWeb3React();
   const history = useHistory();
   const isUser = account?.toLocaleLowerCase() === creator?.toLocaleLowerCase();
@@ -57,23 +56,10 @@ const Card = (props) => {
   useEffect(() => {
     const getData = async () => {
       if (currency === "0x0000000000000000000000000000000000000000" || !currency) {
-        switch (chainId) {
-          case 43113: case 43114:
-            setSymbol("AVAX")
-            break
-          case 137: case 80001:
-            setSymbol("MATIC")
-            break
-          case 1987:
-            setSymbol("EGEM")
-            break
-          default:
-            setSymbol("ETH")
-            break
-        }
+        setSymbol(getSymbol(chainId))
         return
       }
-      const res = await getSymbol(currency);
+      const res = await getTokenSymbol(currency);
       setSymbol(res);
     }
     getData()
@@ -88,13 +74,20 @@ const Card = (props) => {
     // return setIsFinished(true)
     setIsLoading(true);
     try {
-      await new new Web3(window.ethereum).eth.Contract(
-        BIDIFY.abi,
-        BIDIFY.address[chainId]
-      ).methods
-        .finish(id.toString())
-        .send({ from: account });
-      const updateData = await getDetailFromId(id);
+      const Bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
+      const tx = await Bidify.finish(id.toString())
+      const ret = await tx.wait()
+      setTransaction(ret)
+      // await new new Web3(window.ethereum).eth.Contract(
+      //   BIDIFY.abi,
+      //   BIDIFY.address[chainId]
+      // ).methods
+      //   .finish(id.toString())
+      //   .send({ from: account });
+      let updateData = await getDetailFromId(id);
+      while(!updateData.paidOut) {
+        updateData = await getDetailFromId(id)
+      }
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
       setIsFinished(true);
@@ -124,12 +117,12 @@ const Card = (props) => {
       while (account !== (await getDetailFromId(id)).highBidder) {
         console.log("in while loop")
       }
-      console.log("out of loop")
+      // console.log("out of loop")
       const updateData = await getDetailFromId(id);
       setLatestDetail(updateData)
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
-      if(amount >= endingPrice) setIsFinished(true)
+      if(amount >= endingPrice && Number(endingPrice) !== 0) setIsFinished(true)
       else setIsSuccess(true);
     } catch (error) {
       console.log(error);
@@ -153,7 +146,7 @@ const Card = (props) => {
   };
   const bid = async (id, amount) => {
     let currency
-    if (chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
+    if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) currency = (await getListingDetail(id)).currency;
     else currency = (await getListing(id.toString())).currency
     let decimals = await getDecimals(currency)
     const Bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
@@ -163,8 +156,11 @@ const Card = (props) => {
     if (currency) {
       const tx = await Bidify
         .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString())
-      await tx.wait()
+      const ret = await tx.wait()
+      setTransaction(ret)
     } else {
+      // const nextamount = await Bidify.getNextBid(id)
+      // console.log("amount and next Bid", atomic(amount, decimals).toString(), nextamount.toString())
       const tx = await Bidify
         .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString(), {
           from: from,
@@ -179,7 +175,7 @@ const Card = (props) => {
     const from = account;
     const chain_id = chainId;
     let currency
-    if (chainId === 137 || chainId === 43114) currency = (await getListingDetail(id)).currency;
+    if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) currency = (await getListingDetail(id)).currency;
     else currency = (await getListing(id.toString())).currency
     let balance;
     const web3 = new Web3(window.ethereum)
@@ -237,7 +233,7 @@ const Card = (props) => {
     let bids = [];
     const web3 = new Web3(window.ethereum)
     const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
-    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
+    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 || chainId === 100 ? 'toBlock=latest&' : ''}topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${chainId === 9001 || chainId === 100 ? topic1.toLowerCase() : topic1}&apikey=${snowApi[chainId]}`)
     const logs = ret.data.result
     for (let bid of logs) {
       bids.push({
@@ -273,7 +269,7 @@ const Card = (props) => {
   }
   const getDetailFromId = async (id) => {
     let detail
-    if (chainId === 43114 || chainId === 137) {
+    if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
       detail = await getListingDetail(id)
     }
     else detail = await getListing(id)
@@ -318,7 +314,7 @@ const Card = (props) => {
           <div className="card_content_details">
             <div className="block_left">
               <Text variant="primary" style={{ color: "#F79420" }}>
-                {currentBid ? currentBid : 0} {symbol}
+                {(currentBid !== nextBid && currentBid !== null) ? currentBid : '0'} {symbol}
               </Text>
               <Text style={{ fontSize: 12 }}>Current Bid</Text>
             </div>

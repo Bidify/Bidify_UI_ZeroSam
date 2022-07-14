@@ -22,7 +22,7 @@ import pauseImg from "../assets/icons/pause-circle.svg";
 
 //IMPORTING UTILITY PACKGAES
 
-import { baseUrl, BIDIFY, getLogUrl, snowApi, URLS } from "../utils/config";
+import { baseUrl, BIDIFY, getLogUrl, getSymbol, snowApi, URLS } from "../utils/config";
 import { getDecimals, atomic, getListing, unatomic } from "../utils/Bidify";
 import { useWeb3React } from "@web3-react/core";
 import { ERC721, ERC1155 } from "../utils/config";
@@ -58,20 +58,7 @@ const CollectionCard = (props) => {
 
   useEffect(() => {
     if (account) {
-      switch (chainId) {
-        case 43113: case 43114:
-          setSymbol("AVAX");
-          break;
-        case 137: case 80001:
-          setSymbol("MATIC");
-          break;
-        case 1987:
-          setSymbol("EGEM");
-          break;
-        default:
-          setSymbol("ETH");
-          break;
-      }
+      setSymbol(getSymbol(chainId))
     }
   }, [account, chainId])
   const validationSchema = Yup.object({
@@ -143,8 +130,8 @@ const CollectionCard = (props) => {
       "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     let logs = [];
     try {
-      if(chainId === 43114 || chainId === 137) {
-        const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
+      if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
+        const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 || chainId === 100 ? 'toBlock=latest&' : ''}address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
         logs = ret.data.result
       }
       else logs = await web3.eth.getPastLogs({
@@ -195,13 +182,13 @@ const CollectionCard = (props) => {
       const ret = await tx.wait()
       // console.log("transaction", ret)
       setTransaction(ret)
-      if(chainId === 137 || chainId === 43114)
+      if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100)
         while(await getLogs() === totalCount) {
           console.log("while loop")
         }
       // console.log("listed results", tx, det)
       // const listCnt = await getLogs()
-      console.log("total Count", totalCount)
+      // console.log("total Count", totalCount)
       const newId = totalCount
       // await delay()
       const listingDetail = await getDetailFromId(newId)
@@ -218,7 +205,7 @@ const CollectionCard = (props) => {
     while(raw.creator === "0x0000000000000000000000000000000000000000") {
       raw = await bidify.getListing(id.toString())
     }
-    console.log("raw", raw)
+    // console.log("raw", raw)
     const nullIfZeroAddress = (value) => {
       if (value === "0x0000000000000000000000000000000000000000") {
         return null;
@@ -245,9 +232,9 @@ const CollectionCard = (props) => {
     let bids = [];
     const web3 = new Web3(window.ethereum)
     const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
-    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
+    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 || chainId === 100 ? 'toBlock=latest&' : ''}topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${chainId === 9001 || chainId === 100 ? topic1.toLowerCase() : topic1}&apikey=${snowApi[chainId]}`)
     const logs = ret.data.result
-    console.log("bid logs", logs)
+    // console.log("bid logs", logs)
     for (let bid of logs) {
       bids.push({
         bidder: "0x" + bid.topics[2].substr(-40),
@@ -257,28 +244,6 @@ const CollectionCard = (props) => {
         ),
       });
     }
-    console.log("get detail =========>", {
-      id,
-      creator: raw.creator,
-      currency,
-      platform: raw.platform,
-      token: raw.token.toString(),
-
-      highBidder,
-      currentBid,
-      nextBid: unatomic(nextBid.toString(), decimals),
-      endingPrice: unatomic(endingPrice.toString(), decimals),
-
-      referrer,
-      allowMarketplace: raw.allowMarketplace,
-      marketplace,
-
-      endTime: raw.endTime.toString(),
-      paidOut: raw.paidOut,
-      isERC721: raw.isERC721,
-
-      bids,
-    })
     return {
       id,
       creator: raw.creator,
@@ -304,7 +269,7 @@ const CollectionCard = (props) => {
   }
   const getDetailFromId = async (id) => {
     let detail
-    if(chainId === 43114 || chainId === 137) {
+    if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
       detail = await getListingDetail(id)
     }
     else detail = await getListing(id)

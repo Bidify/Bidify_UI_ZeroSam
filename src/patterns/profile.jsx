@@ -21,7 +21,7 @@ import refresh from "../assets/icons/youtube.svg";
 
 import { UserContext } from "../store/contexts";
 import { useWeb3React } from "@web3-react/core";
-import { URLS } from "../utils/config";
+import { EXPLORER, getSymbol, NetworkData, URLS } from "../utils/config";
 import { useEffect } from "react";
 // import { getSymbol } from "../utils/getCurrencySymbol";
 import { injected } from "../utils/connector";
@@ -33,54 +33,6 @@ const upcomingFeatures = [
   "Discord/Telegram/Facebook Applications",
   "Bidify DAO",
   "Mobile Application",
-];
-
-const networkData = [
-  {
-    id: "1",
-    name: "ETHEREUM",
-    color: "#EA6969",
-  },
-  // {
-  //   id: "3",
-  //   name: "ROPSTEN",
-  //   color: "#9F9DF8",
-  // },
-  {
-    id: "4",
-    name: "RINKEBY",
-    color: "#F4DD62",
-  },
-  // {
-  //   id: "5",
-  //   name: "GOERLI",
-  //   color: "#7AD7F4",
-  // },
-  // {
-  //   id: "42",
-  //   name: "KOVAN",
-  //   color: "#27F805",
-  // },
-  {
-    id: "1987",
-    name: "ETHERGEM",
-    color: "#dfdfdf"
-  },
-  {
-    id: "43114",
-    name: "AVALANCHE",
-    color: "#de4437"
-  },
-  {
-    id: "137",
-    name: "POLYGON",
-    color: "#8247e5"
-  },
-  // {
-  //   id: "80001",
-  //   name: "MUMBAI",
-  //   color: "#8247e5"
-  // }
 ];
 
 const Profile = () => {
@@ -103,60 +55,14 @@ const Profile = () => {
         let _balance = await web3.eth.getBalance(account); //Will give value in.
         _balance = web3.utils.fromWei(_balance);
         setBalance(_balance)
-        switch (chainId) {
-          case 43113: case 43114:
-            setSymbol("AVAX");
-            break;
-          case 137: case 80001:
-            setSymbol("MATIC");
-            break;
-          case 1987:
-            setSymbol("EGEM");
-            break;
-          default:
-            setSymbol("ETH");
-            break;
-        }
+        setSymbol(getSymbol(chainId))
         return
-        // setBalance(await getBalance());
-        // setSymbol(await getSymbol(BIT.address[chainId]));
       }
     }
     getData()
   }, [account, chainId]);
 
-  // const handleFreeToken = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     await new new Web3(window.ethereum).eth.Contract(
-  //       BIT.abi,
-  //       BIT.address[chainId]
-  //     ).methods
-  //       ._mint(Web3.utils.toWei(Web3.utils.toBN(1000)))
-  //       .send({ from: account });
-
-  //     await window.ethereum.request({
-  //       method: "wallet_watchAsset",
-  //       params: {
-  //         type: "ERC20", // Initially only supports ERC20, but eventually more!
-  //         options: {
-  //           address: BIT.address[chainId], // The address that the token is at.
-  //           symbol: "BID", // A ticker symbol or shorthand, up to 5 chars.
-  //           decimals: 18, // The number of decimals in the token
-  //           //image: tokenImage, // A string url of the token logo
-  //         },
-  //       },
-  //     });
-  //     setIsLoading(false);
-  //     setBalance(await getBalance());
-  //   } catch (error) {
-  //     console.log(error);
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const switchNetwork = async (_chainId) => {
-    // console.log("herer", activate)
     try {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
@@ -168,10 +74,21 @@ const Profile = () => {
       console.log("error", error)
       if (error.code === 4902) {
         try {
+          console.log(Web3.utils.toHex(_chainId), URLS[_chainId])
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
             params: [
-              { chainId: Web3.utils.toHex(_chainId), rpcUrl: URLS[_chainId] },
+              { 
+                chainId: Web3.utils.toHex(_chainId), 
+                rpcUrls: [URLS[_chainId]],
+                chainName: NetworkData[_chainId].name,
+                nativeCurrency: {
+                  name: NetworkData[_chainId].name,
+                  symbol: NetworkData[_chainId].symbol,
+                  decimals: 18
+                },
+                blockExplorerUrls: [EXPLORER[_chainId]]
+              },
             ],
           });
         } catch (addError) {
@@ -183,60 +100,10 @@ const Profile = () => {
   };
 
   const handleSwitchNetwork = async (_chainId) => {
-    // console.log(provider)
-    // if(chainId === _chainId) {
-    //   console.log("heyyeyeyeyrururuey")
-    // }
-    // else
     activate(injected)
-    switch (Number(_chainId)) {
-      case 1:
-        await switchNetwork(Number(1));
-        break;
-      case 3:
-        await switchNetwork(Number(3));
-        break;
-      case 4:
-        await switchNetwork(Number(4));
-        break;
-      case 5:
-        await switchNetwork(Number(5));
-        break;
-      case 42:
-        await switchNetwork(Number(42));
-        break;
-      case 1987:
-        await switchNetwork(Number(1987));
-        break;
-      case 43114:
-        await switchNetwork(Number(43114));
-        break;
-      case 137:
-        await switchNetwork(Number(137));
-        break;
-      case 80001:
-        await switchNetwork(Number(80001));
-        break;
-      default:
-        console.log("select valid chain");
-    }
+    await switchNetwork(Number(_chainId))
     setToggleSwitchNetwork(false);
   };
-
-  // const getBalance = async () => {
-  //   try {
-  //     return Web3.utils.fromWei(
-  //       await new new Web3(window.ethereum).eth.Contract(
-  //         BIT.abi,
-  //         BIT.address[chainId]
-  //       ).methods
-  //         .balanceOf(account)
-  //         .call()
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   useEffect(() => {
     if (!account) {
@@ -246,34 +113,7 @@ const Profile = () => {
     }
     try {
       if (active) {
-        switch (chainId) {
-          case 1:
-            setNetworkName("ETHEREUM");
-            break;
-          case 3:
-            setNetworkName("Ropsten");
-            break;
-          case 4:
-            setNetworkName("RINKEBY");
-            break;
-          case 5:
-            setNetworkName("Goerli");
-            break;
-          case 42:
-            setNetworkName("Kovan");
-            break;
-          case 1987:
-            setNetworkName("ETHERGEM");
-            break;
-          case 43113: case 43114:
-            setNetworkName("AVALANCHE");
-            break;
-          case 137: case 80001:
-            setNetworkName("POLYGON");
-            break;
-          default:
-            break;
-        }
+        setNetworkName(NetworkData[chainId].name)
       }
     } catch (err) {
       window.alert("Switch to Rinkeby Testnet");
@@ -287,24 +127,9 @@ const Profile = () => {
     }, 3000);
   };
 
-  // const renderUserProfile = (
-  //   <div className="user_profile">
-  //     {/* <img /> */}
-  //     <Text variant="primary" style={{ marginBottom: 5 }}>
-  //       Kevin Peterson
-  //     </Text>
-  //     <Text style={{ marginBottom: 24 }}>@kevin89peterson</Text>
-  //     <div className="icons">
-  //       <img src={like} alt="icons" />
-  //       <img src={upload} alt="icons" />
-  //       <img src={notification} alt="icons" />
-  //     </div>
-  //   </div>
-  // );
-
   const renderSwitchNetwork = (
     <div className="switchnetwork_modal">
-      {networkData.map((val, index) => {
+      {Object.values(NetworkData).sort((a, b) => Number(b.id) - Number(a.id)).map((val, index) => {
         return (
           <div key={index} onClick={() => handleSwitchNetwork(val.id)}>
             <mark style={{ background: val.color }}></mark>
@@ -379,19 +204,6 @@ const Profile = () => {
   return (
     <>
       <div className={userState?.isSidebar ? "profile active" : "profile"}>
-        {/* {renderUserProfile} */}
-        {/* <Button
-          style={{
-            margin: "0 auto",
-            marginBottom: 16,
-            pointerEvents: isLoading && "none",
-            opacity: isLoading && "0.6",
-          }}
-          variant="primary"
-          onClick={() => handleFreeToken()}
-        >
-          Get free token
-        </Button> */}
         {renderUserWalletStatus}
         {renderRecentActivities}
       </div>

@@ -37,7 +37,7 @@ const LiveAuction = () => {
     axios.get(`${baseUrl}/auctions`, { params: { chainId: chainId } })
       .then(response => {
         const results = response.data
-        console.log("database", results)
+        // console.log("database", results)
         // const filteredData = results.filter((val) => val.paidOut !== true);
         const userBiddings = results.filter((value) =>
           value.bids.some(
@@ -62,8 +62,10 @@ const LiveAuction = () => {
       payload: { results: undefined },
     });
     getAuctions()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, chainId]);
 
+  // eslint-disable-next-line no-unused-vars
   const getLists = async () => {
     userDispatch({
       type: "LIVE_AUCTION_NFT",
@@ -79,7 +81,7 @@ const LiveAuction = () => {
     const pLists = []
     for (let i = 0; i < totalAuction; i++) {
       let result
-      if(chainId === 43114 || chainId === 137) {
+      if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285) {
         result = await getListingDetail(i)
         Lists[i] = result
       }
@@ -91,8 +93,7 @@ const LiveAuction = () => {
       }
     }
     
-    if(chainId !== 43114 && chainId !== 137) Lists = await Promise.all(pLists);
-    console.log("blockchain data", Lists)
+    if(chainId !== 43114 && chainId !== 137 && chainId !== 56 && chainId !== 9001 && chainId !== 1285) Lists = await Promise.all(pLists);
     getDetails(Lists);
   };
 
@@ -126,9 +127,8 @@ const LiveAuction = () => {
     let bids = [];
     const web3 = new Web3(window.ethereum)
     const topic1 = "0x" + new web3.utils.BN(id).toString("hex").padStart(64, "0");
-    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${topic1}&apikey=${snowApi[chainId]}`)
+    const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 ? 'toBlock=latest&' : ''}topic0=0xdbf5dea084c6b3ed344cc0976b2643f2c9a3400350e04162ea3f7302c16ee914&topic0_1_opr=and&topic1=${chainId === 9001 ? topic1.toLowerCase() : topic1}&apikey=${snowApi[chainId]}`)
     const logs = ret.data.result
-    console.log("logs", logs)
     for (let bid of logs) {
       bids.push({
         bidder: "0x" + bid.topics[2].substr(-40),
@@ -168,8 +168,8 @@ const LiveAuction = () => {
       "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     let logs = [];
     try {
-      if(chainId === 43114 || chainId === 137) {
-        const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
+      if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285) {
+        const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 ? 'toBlock=latest&' : ''}address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
         logs = ret.data.result
       }
       else logs = await web3.eth.getPastLogs({
@@ -199,45 +199,15 @@ const LiveAuction = () => {
           "0c8149f8e63b4b818d441dd7f74ab618"
         );
         break;
-      case 3:
-        provider = new ethers.providers.InfuraProvider(
-          "ropsten",
-          "0c8149f8e63b4b818d441dd7f74ab618"
-        );
-        break;
       case 4:
         provider = new ethers.providers.InfuraProvider(
           "rinkeby",
           "0c8149f8e63b4b818d441dd7f74ab618"
         );
         break;
-      case 5:
-        provider = new ethers.providers.InfuraProvider(
-          "goerli",
-          "0c8149f8e63b4b818d441dd7f74ab618"
-        );
-        break;
-      case 42:
-        provider = new ethers.providers.InfuraProvider(
-          "kovan",
-          "0c8149f8e63b4b818d441dd7f74ab618"
-        );
-        break;
-      case 1987:
-        provider = new ethers.providers.JsonRpcProvider("https://lb.rpc.egem.io")
-        break;
-      case 43113:
-        provider = new ethers.providers.JsonRpcProvider("https://api.avax-test.network/ext/bc/C/rpc")
-        break;
-      case 43114:
-        provider = new ethers.providers.JsonRpcProvider("https://api.avax.network/ext/bc/C/rpc")
-        break;
-      case 80001:
-        provider = new ethers.providers.JsonRpcProvider("https://matic-testnet-archive-rpc.bwarelabs.com")
-        break;
-      case 137:
-        provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com")
-        break;
+      case 1987: case 43114: case 137: case 56: case 9001: case 1285: case 61: case 100:
+          provider = new ethers.providers.JsonRpcProvider(URLS[chainId])
+          break;
       default:
         console.log("select valid chain");
     }
@@ -256,6 +226,9 @@ const LiveAuction = () => {
     function imageurl(url) {
       // const string = url;
       const check = url.substr(16, 4);
+      console.log('imageurl ====== ', url)
+      if(url.includes('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/')
+      if(url.includes('https://ipfs.io/ipfs/')) return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
         return "https://dweb.link/" + manipulated;
@@ -265,12 +238,15 @@ const LiveAuction = () => {
     }
     const fetchWrapper = new FetchWrapper(fetcher, {
       jsonProxy: (url) => {
-        return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        console.log('json proxy', url)
+        // return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        return url
       },
       imageProxy: (url) => {
         return imageurl(url);
       },
       ipfsUrl: (cid, path) => {
+        console.log('ipfsUrl')
         return ipfsUrl(cid, path);
       },
     });
@@ -286,12 +262,12 @@ const LiveAuction = () => {
       token: val?.token,
       ...val,
     };
+    console.log(finalResult)
     return finalResult;
   };
 
   const getDetails = async (_lists) => {
     const lists = _lists.filter(item => item.paidOut === false)
-    console.log(lists)
     const unsolvedPromises = lists.map((val) => getFetchValues(val));
     const results = await Promise.all(unsolvedPromises);
     setUpdate(results.map(item => { return { ...item, network: chainId } }))
