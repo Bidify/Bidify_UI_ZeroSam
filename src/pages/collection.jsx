@@ -173,7 +173,7 @@ const Collection = () => {
     let results = [];
     if (chainId === 137) {
       try {
-        const response = await axios.get("https://api.nftport.xyz/v0/accounts/0x484D53603331e4030439c3C58f51f9d433Df1F39?chain=polygon&page_size=50&include=metadata", {
+        const response = await axios.get(`https://api.nftport.xyz/v0/accounts/${account}?chain=polygon&page_size=50&include=metadata`, {
           headers: {
             Authorization: 'e2027ff8-0b63-4800-9429-fdfe627a8f63'
           }
