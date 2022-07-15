@@ -113,16 +113,41 @@ const CollectionCard = (props) => {
     token,
     isERC721,
   }) {
-
-    const web3 = new Web3(window.ethereum);
+    let maxFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    try {
+      const { data } = await axios({
+        method: 'get',
+        url: 'https://gasstation-mainnet.matic.network/v2'
+      })
+      maxFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxFee) + '',
+        'gwei'
+      )
+      maxPriorityFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxPriorityFee) + '',
+        'gwei'
+      )
+    } catch {
+      // ignore
+    }
+    // const web3 = new Web3(window.ethereum);
+    const erc721 = new ethers.Contract(platform, ERC721.abi, library.getSigner())
+    const erc1155 = new ethers.Contract(platform, ERC1155.abi, library.getSigner())
+    let tx
     if (isERC721)
-      await new web3.eth.Contract(ERC721.abi, platform).methods
-        .approve(BIDIFY.address[chainId], token)
-        .send({ from: account });
+      tx = chainId === 137 ?
+        await erc721
+          .approve(BIDIFY.address[chainId], token, { maxFeePerGas, maxPriorityFeePerGas }) :
+        await erc721
+          .approve(BIDIFY.address[chainId], token)
     else
-      await new web3.eth.Contract(ERC1155.abi, platform).methods
-        .setApprovalForAll(BIDIFY.address[chainId], true)
-        .send({ from: account });
+      tx = chainId === 137 ?
+        await erc1155
+          .setApprovalForAll(BIDIFY.address[chainId], true, { maxFeePerGas, maxPriorityFeePerGas }) :
+        await erc1155
+          .setApprovalForAll(BIDIFY.address[chainId], true)
+    await tx.wait()
   }
   const getLogs = async () => {
     const web3 = new Web3(new Web3.providers.HttpProvider(URLS[chainId]));
@@ -130,7 +155,7 @@ const CollectionCard = (props) => {
       "0x5424fbee1c8f403254bd729bf71af07aa944120992dfa4f67cd0e7846ef7b8de";
     let logs = [];
     try {
-      if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
+      if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
         const ret = await axios.get(`${getLogUrl[chainId]}&fromBlock=0&${chainId === 9001 || chainId === 100 ? 'toBlock=latest&' : ''}address=${BIDIFY.address[chainId]}&topic0=${topic0}&apikey=${snowApi[chainId]}`)
         logs = ret.data.result
       }
@@ -158,7 +183,7 @@ const CollectionCard = (props) => {
     if (!currency) {
       currency = "0x0000000000000000000000000000000000000000";
     }
-    const Bidify =  new ethers.Contract(
+    const Bidify = new ethers.Contract(
       BIDIFY.address[chainId],
       BIDIFY.abi,
       library.getSigner()
@@ -166,9 +191,27 @@ const CollectionCard = (props) => {
     // return token;
     const tokenNum = isERC721 ? token : new Web3(window.ethereum).utils.hexToNumberString(token);
     // return console.log("before list", atomic(price.toString(), decimals).toString())
+    let maxFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    try {
+      const { data } = await axios({
+        method: 'get',
+        url: 'https://gasstation-mainnet.matic.network/v2'
+      })
+      maxFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxFee) + '',
+        'gwei'
+      )
+      maxPriorityFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxPriorityFee) + '',
+        'gwei'
+      )
+    } catch {
+      // ignore
+    }
     try {
       const totalCount = await getLogs()
-      const tx = await Bidify
+      const tx = chainId === 137 ? await Bidify
         .list(
           currency,
           platform,
@@ -178,12 +221,24 @@ const CollectionCard = (props) => {
           Number(days),
           isERC721,
           "0x0000000000000000000000000000000000000000",
-        )
+          { maxFeePerGas, maxPriorityFeePerGas }
+        ) :
+        await Bidify
+          .list(
+            currency,
+            platform,
+            tokenNum.toString(),
+            atomic(price.toString(), decimals).toString(),
+            atomic(endingPrice.toString(), decimals).toString(),
+            Number(days),
+            isERC721,
+            "0x0000000000000000000000000000000000000000"
+          )
       const ret = await tx.wait()
       // console.log("transaction", ret)
       setTransaction(ret)
-      if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100)
-        while(await getLogs() === totalCount) {
+      if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100)
+        while (await getLogs() === totalCount) {
           console.log("while loop")
         }
       // console.log("listed results", tx, det)
@@ -198,11 +253,11 @@ const CollectionCard = (props) => {
       return console.log("list error", error)
     }
   }
-  
+
   const getListingDetail = async (id) => {
     const bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
     let raw = await bidify.getListing(id.toString())
-    while(raw.creator === "0x0000000000000000000000000000000000000000") {
+    while (raw.creator === "0x0000000000000000000000000000000000000000") {
       raw = await bidify.getListing(id.toString())
     }
     // console.log("raw", raw)
@@ -269,7 +324,7 @@ const CollectionCard = (props) => {
   }
   const getDetailFromId = async (id) => {
     let detail
-    if(chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
+    if (chainId === 43114 || chainId === 137 || chainId === 56 || chainId === 9001 || chainId === 1285 || chainId === 100) {
       detail = await getListingDetail(id)
     }
     else detail = await getListing(id)

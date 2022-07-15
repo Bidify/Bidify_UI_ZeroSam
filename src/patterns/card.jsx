@@ -73,9 +73,27 @@ const Card = (props) => {
   const handleFinisheAuction = async () => {
     // return setIsFinished(true)
     setIsLoading(true);
+    let maxFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    try {
+      const { data } = await axios({
+        method: 'get',
+        url: 'https://gasstation-mainnet.matic.network/v2'
+      })
+      maxFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxFee) + '',
+        'gwei'
+      )
+      maxPriorityFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxPriorityFee) + '',
+        'gwei'
+      )
+    } catch {
+      // ignore
+    }
     try {
       const Bidify = new ethers.Contract(BIDIFY.address[chainId], BIDIFY.abi, library.getSigner())
-      const tx = await Bidify.finish(id.toString())
+      const tx = chainId === 137 ? await Bidify.finish(id.toString(), { maxFeePerGas, maxPriorityFeePerGas }) : await Bidify.finish(id.toString())
       const ret = await tx.wait()
       setTransaction(ret)
       // await new new Web3(window.ethereum).eth.Contract(
@@ -85,7 +103,7 @@ const Card = (props) => {
       //   .finish(id.toString())
       //   .send({ from: account });
       let updateData = await getDetailFromId(id);
-      while(!updateData.paidOut) {
+      while (!updateData.paidOut) {
         updateData = await getDetailFromId(id)
       }
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
@@ -122,7 +140,7 @@ const Card = (props) => {
       setLatestDetail(updateData)
       await axios.put(`${baseUrl}/auctions/${id}`, updateData)
       setIsLoading(false);
-      if(amount >= endingPrice && Number(endingPrice) !== 0) setIsFinished(true)
+      if (amount >= endingPrice && Number(endingPrice) !== 0) setIsFinished(true)
       else setIsSuccess(true);
     } catch (error) {
       console.log(error);
@@ -153,19 +171,46 @@ const Card = (props) => {
     const from = account
     // return console.log("handle bid", id, atomic(amount, decimals).toString())
     // console.log("amount", atomic(amount, decimals).toString())
+    let maxFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
+    try {
+      const { data } = await axios({
+        method: 'get',
+        url: 'https://gasstation-mainnet.matic.network/v2'
+      })
+      maxFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxFee) + '',
+        'gwei'
+      )
+      maxPriorityFeePerGas = ethers.utils.parseUnits(
+        Math.ceil(data.fast.maxPriorityFee) + '',
+        'gwei'
+      )
+    } catch {
+      // ignore
+    }
     if (currency) {
-      const tx = await Bidify
-        .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString())
+      const tx = chainId === 137 ? await Bidify
+        .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString(), { maxFeePerGas, maxPriorityFeePerGas }) :
+        await Bidify
+          .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString())
       const ret = await tx.wait()
       setTransaction(ret)
     } else {
       // const nextamount = await Bidify.getNextBid(id)
       // console.log("amount and next Bid", atomic(amount, decimals).toString(), nextamount.toString())
-      const tx = await Bidify
+      const tx = chainId === 137 ? await Bidify
         .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString(), {
           from: from,
           value: atomic(amount, decimals).toString(),
-        })
+          maxFeePerGas,
+          maxPriorityFeePerGas
+        }) :
+        await Bidify
+          .bid(id, "0x0000000000000000000000000000000000000000", atomic(amount, decimals).toString(), {
+            from: from,
+            value: atomic(amount, decimals).toString()
+          })
       const ret = await tx.wait()
       setTransaction(ret)
     }

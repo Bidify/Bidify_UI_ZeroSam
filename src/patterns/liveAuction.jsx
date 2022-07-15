@@ -238,7 +238,6 @@ const LiveAuction = () => {
     }
     const fetchWrapper = new FetchWrapper(fetcher, {
       jsonProxy: (url) => {
-        console.log('json proxy', url)
         // return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
         return url
       },
@@ -246,7 +245,6 @@ const LiveAuction = () => {
         return imageurl(url);
       },
       ipfsUrl: (cid, path) => {
-        console.log('ipfsUrl')
         return ipfsUrl(cid, path);
       },
     });
@@ -262,7 +260,6 @@ const LiveAuction = () => {
       token: val?.token,
       ...val,
     };
-    console.log(finalResult)
     return finalResult;
   };
 

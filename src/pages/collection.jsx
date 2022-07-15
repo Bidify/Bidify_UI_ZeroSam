@@ -128,6 +128,7 @@ const Collection = () => {
       // const string = url;
       const check = url.substr(16, 4);
       if(url.includes('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/')
+      if(url.includes('https://ipfs.io/ipfs/')) return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
       if (check === "ipfs") {
         const manipulated = url.substr(16, 16 + 45);
         return "https://dweb.link/" + manipulated;
