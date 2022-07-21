@@ -2,12 +2,26 @@ import logo_eth from "../assets/logo/bidifylogo.png";
 import logo_egem from "../assets/logo/bidifylogo_egem.png";
 import logo_avax from "../assets/logo/bidifylogo_avax.png";
 import logo_matic from "../assets/logo/bidifylogo_matic.png";
+// import logo_bnb from "../assets/logo/bidifylogo_bnb.png";
+// import logo_etc from "../assets/logo/bidifylogo_etc.png";
+// import logo_xdai from "../assets/logo/bidifylogo_xdai.png";
+// import logo_evmos from "../assets/logo/bidifylogo_evmos.png";
+// import logo_movr from "../assets/logo/bidifylogo_movr.png";
+// import logo_optimism from "../assets/logo/bidifylogo_optimism.png";
+// import logo_arbitrum from "../assets/logo/bidifylogo_arbitrum.png";
 
 
 import ethLoader from "../assets/icons/loader_3d.gif";
 import egemLoader from "../assets/icons/loader_3d_egem.gif";
 import avaxLoader from "../assets/icons/loader_3d_avax.gif";
 import maticLoader from "../assets/icons/loader_3d_matic.gif";
+import bnbLoader from "../assets/icons/loader_bnb.gif";
+import movrLoader from "../assets/icons/loader_movr.gif";
+import evmosLoader from "../assets/icons/loader_evmos.gif";
+import xdaiLoader from "../assets/icons/loader_xdai.gif";
+import etcLoader from "../assets/icons/loader_etc.gif";
+// import arbitrumLoader from "../assets/icons/loader_arbitrum.gif";
+// import optimismLoader from "../assets/icons/loader_optimism.gif";
 
 export const baseUrl = "https://api.bidify.org/api"
 // export const baseUrl = "http://localhost:8080/api"
@@ -64,7 +78,7 @@ export const NetworkData = {
     name: "BINANCE SMART CHAIN",
     color: "#FCD535",
     logo: logo_eth,
-    loader: ethLoader
+    loader: bnbLoader
   },
   [NetworkId.XDAI]: {
     symbol: "XDAI",
@@ -72,7 +86,7 @@ export const NetworkData = {
     name: "GNOSIS",
     color: "#009cb4",
     logo: logo_eth,
-    loader: ethLoader
+    loader: xdaiLoader
   },
   [NetworkId.EVMOS]: {
     symbol: "EVMOS",
@@ -80,7 +94,7 @@ export const NetworkData = {
     name: "EVMOS",
     color: "#2d2925",
     logo: logo_eth,
-    loader: ethLoader
+    loader: evmosLoader
   },
   [NetworkId.MOVR]: {
     symbol: "MOVR",
@@ -88,7 +102,7 @@ export const NetworkData = {
     name: "MOONRIVER",
     color: "#f2b705",
     logo: logo_eth,
-    loader: ethLoader
+    loader: movrLoader
   },
   [NetworkId.ETC]: {
     symbol: "ETC",
@@ -96,7 +110,7 @@ export const NetworkData = {
     name: "ETHEREUM CLASSIC",
     color: "#34d399",
     logo: logo_eth,
-    loader: ethLoader
+    loader: etcLoader
   },
   // [NetworkId.ETHEREUM]: {
   //   symbol: "ETH",
