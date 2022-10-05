@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Web3 from "web3";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import axios from "axios"
+import fleekStorage from '@fleekhq/fleek-storage-js'
+
 //IMPORTING STYLESHEET
 
 import "../styles/patterns/card.scss";
@@ -19,6 +21,9 @@ import Prompt from "./prompt";
 
 import playImg from "../assets/icons/play-circle.svg";
 import pauseImg from "../assets/icons/pause-circle.svg";
+import NFTPortImage from "../assets/placeholders/nftport.gif"
+import FleekImage from "../assets/placeholders/fleek.gif"
+import IpfsImage from "../assets/placeholders/ipfs.gif"
 
 //IMPORTING UTILITY PACKGAES
 
@@ -27,6 +32,10 @@ import { getDecimals, atomic, getListing, unatomic } from "../utils/Bidify";
 import { useWeb3React } from "@web3-react/core";
 import { ERC721, ERC1155 } from "../utils/config";
 import { ethers } from "ethers";
+import { useHistory } from "react-router-dom";
+import { getBase64ImageBuffer } from "../utils/NFTFetcher";
+import { UserContext } from "../store/contexts";
+
 
 const CollectionCard = (props) => {
   const { name, description, image, platform, token, getDetails, isERC721, getFetchValues } = props;
@@ -46,6 +55,15 @@ const CollectionCard = (props) => {
   const [isError, setIsError] = useState(false);
   const [isPlay, setIsPlay] = useState(false);
   const [symbol, setSymbol] = useState("")
+  const [loadingImage, setLoadingImage] = useState(true)
+  const [placeholder, setPlaceholder] = useState("")
+  const history = useHistory()
+  const { userDispatch } = useContext(UserContext);
+  useEffect(() => {
+    if (image.includes('storage.googleapis.com')) return setPlaceholder(NFTPortImage)
+    if (image.includes('fleek.co')) return setPlaceholder(FleekImage)
+    return setPlaceholder(IpfsImage)
+  }, [image, setPlaceholder])
   const initialValues = {
     price: "0",
     endingPrice: "0",
@@ -75,15 +93,48 @@ const CollectionCard = (props) => {
       .max(10, "days should be less than 10 days")
       .required("This field is required"),
   });
-
   const onSubmit = async (values, onSubmitProps) => {
+    setIsModal(false);
+    setIsLoading(true);
+    setProcessContent(
+      "Uploading image to the fleek storage"
+    );
+    const buffer = await getBase64ImageBuffer(image).catch(e => console.log('error in promise', e))
+    let uploadedFile = {publicUrl: undefined}
+    if (buffer !== undefined) {
+      const files = await fleekStorage.listFiles({
+        apiKey: process.env.REACT_APP_API_KEY,
+        apiSecret: process.env.REACT_APP_API_SECRET,
+        bucket: process.env.REACT_APP_BUCKET,
+        getOptions: [
+          'key',
+          'hash',
+          'publicUrl'
+        ],
+      })
+      const key = files.length
+      try {
+        uploadedFile = await fleekStorage.upload({
+          apiKey: process.env.REACT_APP_API_KEY,
+          apiSecret: process.env.REACT_APP_API_SECRET,
+          bucket: process.env.REACT_APP_BUCKET,
+          key: key.toString(),
+          data: buffer,
+          httpUploadProgressCallback: (event) => {
+            console.log(Math.round(event.loaded / event.total * 100) + '% done');
+          }
+        })
+      } catch (e) {
+        setIsLoading(false);
+        return console.log("err while uploading image", e)
+      }
+    }
+    // return console.log(uploadedFile)
     // return setTimeout(() => {
     //   setIsSuccess(true)
     // }, 10000)
     const { currency, platform, token, price, endingPrice, days } = values;
     // return console.log(atomic(price.toString(), 18).toString(), atomic(endingPrice.toString(), 18).toString(),)
-    setIsModal(false);
-    setIsLoading(true);
     setProcessContent(
       "Please allow https://bidify.org permission within your wallet when prompted, there will be a small fee for this…"
     );
@@ -92,7 +143,13 @@ const CollectionCard = (props) => {
       setProcessContent(
         "Confirm the second transaction to allow your NFT to be listed, there will be another small network fee."
       );
-      await list({ currency, platform, token, price, endingPrice, days });
+      await list({ currency, platform, token, price, endingPrice, days, image: uploadedFile.publicUrl });
+      const response = await axios.get(`${baseUrl}/collection`, { params: { chainId, owner: account } })
+      const results = response.data
+      userDispatch({
+        type: "MY_COLLECTIONS",
+        payload: { results, isCollectionFetched: true },
+      });
       setIsLoading(false);
       setIsSuccess(true);
     } catch (error) {
@@ -178,6 +235,7 @@ const CollectionCard = (props) => {
     price,
     endingPrice,
     days,
+    image
   }) {
     let decimals = await getDecimals(currency);
     if (!currency) {
@@ -247,8 +305,7 @@ const CollectionCard = (props) => {
       const newId = totalCount
       // await delay()
       const listingDetail = await getDetailFromId(newId)
-      console.log("adding to database", listingDetail)
-      await axios.post(`${baseUrl}/auctions`, listingDetail)
+      await axios.post(`${baseUrl}/auctions`, { ...listingDetail, image_cache: image })
     } catch (error) {
       return console.log("list error", error)
     }
@@ -390,7 +447,7 @@ const CollectionCard = (props) => {
   };
 
   const renderImage = (
-    <div className="card_image">
+    <div className="card_image cursor" onClick={() => history.push(`/nft_details/${platform}/${token}`)}>
       {isVideo ? (
         <>
           <video ref={videoRef} loop>
@@ -414,27 +471,33 @@ const CollectionCard = (props) => {
           }
         </>
       ) : (
-        <LazyLoadImage
-          effect="blur"
-          src={image}
-          alt="art"
-          onError={() => setIsVideo(true)}
-          width={"100%"}
-          heigh={"100%"}
-        />
+        <>
+          {loadingImage && <img className='placeholder' src={placeholder} alt="" />}
+          <LazyLoadImage
+            effect="blur"
+            src={image}
+            alt="art"
+            placeholder={<img src={NFTPortImage} alt="" />}
+            onError={() => setIsVideo(true)}
+            afterLoad={() => setLoadingImage(false)}
+            width={"100%"}
+            heigh={"100%"}
+          />
+        </>
       )}
     </div>
   );
 
   const renderContent = (
-    <div className="card_content">
+    <div className="card_content cursor">
+      <div className="overlay" onClick={() => history.push(`/nft_details/${platform}/${token}`)}></div>
       <Text variant="primary" className="title">
         {name}
       </Text>
       <div className="description_block">
         <Text className="description">{description}</Text>
       </div>
-      <Button variant="secondary" onClick={() => setIsModal(true)}>
+      <Button variant="secondary" onClick={(e) => setIsModal(true)}>
         Create Auction
       </Button>
     </div>

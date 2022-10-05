@@ -17,6 +17,9 @@ import Prompt from "./prompt";
 //IMPORTING MEDIA ASSETS
 
 import lock from "../assets/icons/lock.svg";
+import NFTPortImage from "../assets/placeholders/nftport.gif"
+import FleekImage from "../assets/placeholders/fleek.gif"
+import IpfsImage from "../assets/placeholders/ipfs.gif"
 
 //IMPORTING UTILITY PACKGAES
 
@@ -29,8 +32,9 @@ import { ethers } from "ethers"
 import PromptFinish from "./promptFinish";
 
 const Card = (props) => {
-  const { name, creator, image, currentBid, nextBid, endTime, id, currency, getLists, highBidder, getFetchValues, endingPrice } =
+  const { name, creator, image, currentBid, nextBid, endTime, id, currency, getLists, highBidder, getFetchValues, endingPrice, image_cache } =
     props;
+  const imageToDisplay = image_cache ? image_cache : image
   const { account, chainId, library } = useWeb3React();
   const history = useHistory();
   const isUser = account?.toLocaleLowerCase() === creator?.toLocaleLowerCase();
@@ -46,7 +50,13 @@ const Card = (props) => {
   const [symbol, setSymbol] = useState('');
   const [transaction, setTransaction] = useState()
   const [latestDetail, setLatestDetail] = useState(props)
-
+  const [loadingImage, setLoadingImage] = useState(true)
+  const [placeholder, setPlaceholder] = useState("")
+  useEffect(() => {
+    if (imageToDisplay.includes('storage.googleapis.com')) return setPlaceholder(NFTPortImage)
+    if (imageToDisplay.includes('fleek.co')) return setPlaceholder(FleekImage)
+    return setPlaceholder(IpfsImage)
+  }, [imageToDisplay, setPlaceholder])
   // useEffect(() => {
   //   if (isSuccess) getLists();
 
@@ -70,7 +80,7 @@ const Card = (props) => {
     setIsFinished(false)
     getLists()
   }
-  const handleFinisheAuction = async () => {
+  const handleFinishAuction = async () => {
     // return setIsFinished(true)
     setIsLoading(true);
     let maxFeePerGas = ethers.BigNumber.from(40000000000) // fallback to 40 gwei
@@ -129,7 +139,7 @@ const Card = (props) => {
     try {
       await signBid(id, amount)
       setProcessContent(
-        "Confirm the second transaction of your bid amount, there will be a small network fee for this."
+        "Confirm the transaction of your bid amount, there will be a small network fee for this."
       );
       await bid(id, amount);
       while (account !== (await getDetailFromId(id)).highBidder) {
@@ -343,7 +353,7 @@ const Card = (props) => {
           <Button
             variant="secondary"
             // style={{ pointerEvents: !isUser && "none" }}
-            onClick={() => handleFinisheAuction()}
+            onClick={() => handleFinishAuction()}
           >
             Finish auction
           </Button>
@@ -389,29 +399,32 @@ const Card = (props) => {
   const renderImage = (
     <div
       className="card_image cursor"
-      onClick={() => history.push(`/nft_details/${id}`)}
+      onClick={() => history.push(`/nft_details/auction/${id}`)}
     >
       {isVideo ? (
         <video controls loop>
-          <source src={image} type="video/mp4" />
-          <source src={image} type="video/ogg" />
-          <source src={image} type="video/mov" />
-          <source src={image} type="video/avi" />
-          <source src={image} type="video/wmv" />
-          <source src={image} type="video/flv" />
-          <source src={image} type="video/webm" />
-          <source src={image} type="video/mkv" />
-          <source src={image} type="video/avchd" />
+          <source src={imageToDisplay} type="video/mp4" />
+          <source src={imageToDisplay} type="video/ogg" />
+          <source src={imageToDisplay} type="video/mov" />
+          <source src={imageToDisplay} type="video/avi" />
+          <source src={imageToDisplay} type="video/wmv" />
+          <source src={imageToDisplay} type="video/flv" />
+          <source src={imageToDisplay} type="video/webm" />
+          <source src={imageToDisplay} type="video/mkv" />
+          <source src={imageToDisplay} type="video/avchd" />
         </video>
       ) : (
         <>
+          {loadingImage && <img className="placeholder" src={placeholder} alt="" />}
           <LazyLoadImage
             effect="blur"
-            src={image}
+            src={imageToDisplay}
             alt="art"
-            onError={() => setIsVideo(true)}
-            width={"100%"}
-            heigh={"100%"}
+            placeholder={
+              <div></div>
+            }
+            onError={(e) => {console.log(e);setIsVideo(true)}}
+            afterLoad={() => {console.log("loaded images");setLoadingImage(false)}}
           />
         </>
       )}
@@ -422,7 +435,7 @@ const Card = (props) => {
     <div className="card_content">
       <div
         className="overlay"
-        onClick={() => history.push(`/nft_details/${id}`)}
+        onClick={() => history.push(`/nft_details/auction/${id}`)}
       ></div>
       <Text variant="primary" className="title">
         {name}

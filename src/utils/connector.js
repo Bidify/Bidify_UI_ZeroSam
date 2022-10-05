@@ -7,7 +7,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 // };
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 4, 1987, 43114, 137, 100, 61, 9001, 1285, 56],
+  supportedChainIds: [4, 1987, 43114, 137, 100, 61, 9001, 1285, 56],
 });
 
 // export const network = new NetworkConnector({

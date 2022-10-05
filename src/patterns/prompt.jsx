@@ -59,7 +59,6 @@ const Prompt = ({
   chainId
 }) => {
   const [showConfetti, setShowConfetti] = useState(true)
-  // console.log('showConfetti', showConfetti)
   useEffect(() => {
     if(isModal && variant === 'success'){
       // console.log("mounted prompt", isModal, variant)

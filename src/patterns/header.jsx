@@ -43,7 +43,6 @@ const Header = ({ title, description }) => {
       payload: { keyword: keyword.current.value },
     });
   };
-
   const renderScreenHeader = (
     <div
       className={

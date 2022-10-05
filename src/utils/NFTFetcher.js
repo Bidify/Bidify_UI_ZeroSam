@@ -1,5 +1,6 @@
 import { FetchWrapper } from "use-nft";
 import { ethers, Contract } from "ethers";
+var request = require("request").defaults({ encoding: null });
 
 export const getNfts = async (platform, token) => {
   let provider;
@@ -33,3 +34,25 @@ export const getNfts = async (platform, token) => {
 
   return result;
 };
+
+export const getBase64ImageBuffer = (imgUrl) => {
+  if(imgUrl.includes('storageapi.fleek.co')) return Promise.reject("already uploaded")
+  return new Promise(
+    (resolve, reject) => {
+      request.get(
+        imgUrl,
+        (error, response, body) => {
+          if (error) reject('Something went wrong!!!')
+          if (!error && response.statusCode === 200) {
+            const data =
+              "data:" +
+              response.headers["content-type"] +
+              ";base64," +
+              Buffer.from(body).toString("base64");
+            resolve(Buffer.from(data.replace(/^data:image\/(png|jpg|gif|jpeg);base64,/, ""), 'base64'));
+          }
+          else reject('Something went wrong!!!')
+        }
+      );
+    });
+}

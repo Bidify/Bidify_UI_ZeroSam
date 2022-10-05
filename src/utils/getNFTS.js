@@ -208,18 +208,3 @@ async function getNFTs(from) {
 
   return res;
 }
-
-//   Promise.resolve(getNFTs("0x37fBA930Ce4C4D75Ae902b9222046783c5660bda")).then((res)=>{
-//       for(let nft of res){
-//           const nft_address = nft.platform;
-//           const nft_id = nft.token;
-
-//           const {loading,error,nft} = useNft(nft_address,nft_id)
-
-//           if()
-
-//           if(error || !nft ){
-//               console.log("NFT loading error");
-//           }
-//       }
-//   })

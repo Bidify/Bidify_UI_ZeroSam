@@ -55,7 +55,7 @@ function App() {
         <Route exact path="/marketplace" component={MarketPlace} />
         <Route exact path="/mybiddings" component={MyBiddings} />
         <Route exact path="/tutorials" component={Tutorials} />
-        <Route exact path="/nft_details/:id" component={DetailsPage} />
+        <Route exact path="/nft_details/:platform/:id" component={DetailsPage} />
         <Route component={PageNotFound} />
       </Switch>
     </Router>

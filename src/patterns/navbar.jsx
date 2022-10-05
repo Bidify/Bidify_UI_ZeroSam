@@ -7,10 +7,10 @@ import "../styles/patterns/navbar.scss";
 
 //IMPORTING MEDIA ASSETS
 
-import dashboardActive from "../assets/icons/dashboardActive.svg";
-import biddingActive from "../assets/icons/biddingActive.svg";
-import myCollectionActive from "../assets/icons/myCollectionActive.svg";
-import NFTActive from "../assets/icons/NFTActive.svg";
+import dashboardActive from "../assets/menu/auctions.png";
+import biddingActive from "../assets/menu/mybidding.png";
+import myCollectionActive from "../assets/menu/wallet.png";
+import NFTActive from "../assets/menu/support.png";
 //IMPORTING STORE COMPONENTS
 
 import { UserContext } from "../store/contexts";

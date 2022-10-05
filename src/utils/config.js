@@ -2,13 +2,13 @@ import logo_eth from "../assets/logo/bidifylogo.png";
 import logo_egem from "../assets/logo/bidifylogo_egem.png";
 import logo_avax from "../assets/logo/bidifylogo_avax.png";
 import logo_matic from "../assets/logo/bidifylogo_matic.png";
-// import logo_bnb from "../assets/logo/bidifylogo_bnb.png";
-// import logo_etc from "../assets/logo/bidifylogo_etc.png";
-// import logo_xdai from "../assets/logo/bidifylogo_xdai.png";
-// import logo_evmos from "../assets/logo/bidifylogo_evmos.png";
-// import logo_movr from "../assets/logo/bidifylogo_movr.png";
-// import logo_optimism from "../assets/logo/bidifylogo_optimism.png";
-// import logo_arbitrum from "../assets/logo/bidifylogo_arbitrum.png";
+import logo_bnb from "../assets/logo/bidifylogo_bnb.png";
+import logo_etc from "../assets/logo/bidifylogo_etc.png";
+import logo_xdai from "../assets/logo/bidifylogo_xdai.png";
+import logo_evmos from "../assets/logo/bidifylogo_evmos.png";
+import logo_movr from "../assets/logo/bidifylogo_movr.png";
+import logo_optimism from "../assets/logo/bidifylogo_optimism.png";
+import logo_arbitrum from "../assets/logo/bidifylogo_arbitrum.png";
 
 
 import ethLoader from "../assets/icons/loader_3d.gif";
@@ -20,8 +20,8 @@ import movrLoader from "../assets/icons/loader_movr.gif";
 import evmosLoader from "../assets/icons/loader_evmos.gif";
 import xdaiLoader from "../assets/icons/loader_xdai.gif";
 import etcLoader from "../assets/icons/loader_etc.gif";
-// import arbitrumLoader from "../assets/icons/loader_arbitrum.gif";
-// import optimismLoader from "../assets/icons/loader_optimism.gif";
+import arbitrumLoader from "../assets/icons/loader_arbitrum.gif";
+import optimismLoader from "../assets/icons/loader_optimism.gif";
 
 export const baseUrl = "https://api.bidify.org/api"
 // export const baseUrl = "http://localhost:8080/api"
@@ -77,7 +77,7 @@ export const NetworkData = {
     id: "56",
     name: "BINANCE SMART CHAIN",
     color: "#FCD535",
-    logo: logo_eth,
+    logo: logo_bnb,
     loader: bnbLoader
   },
   [NetworkId.XDAI]: {
@@ -85,7 +85,7 @@ export const NetworkData = {
     id: "100",
     name: "GNOSIS",
     color: "#009cb4",
-    logo: logo_eth,
+    logo: logo_xdai,
     loader: xdaiLoader
   },
   [NetworkId.EVMOS]: {
@@ -93,7 +93,7 @@ export const NetworkData = {
     id: "9001",
     name: "EVMOS",
     color: "#2d2925",
-    logo: logo_eth,
+    logo: logo_evmos,
     loader: evmosLoader
   },
   [NetworkId.MOVR]: {
@@ -101,7 +101,7 @@ export const NetworkData = {
     id: "1285",
     name: "MOONRIVER",
     color: "#f2b705",
-    logo: logo_eth,
+    logo: logo_movr,
     loader: movrLoader
   },
   [NetworkId.ETC]: {
@@ -109,8 +109,24 @@ export const NetworkData = {
     id: "61",
     name: "ETHEREUM CLASSIC",
     color: "#34d399",
-    logo: logo_eth,
+    logo: logo_etc,
     loader: etcLoader
+  },
+  [NetworkId.ARBITRUM]: {
+    symbol: "ETH",
+    id: "42161",
+    name: "ARBITRUM",
+    color: "#34d399",
+    logo: logo_arbitrum,
+    loader: arbitrumLoader
+  },
+  [NetworkId.OPTIMISM]: {
+    symbol: "ETH",
+    id: "10",
+    name: "OPTIMISM",
+    color: "#34d399",
+    logo: logo_optimism,
+    loader: optimismLoader
   },
   // [NetworkId.ETHEREUM]: {
   //   symbol: "ETH",
@@ -145,7 +161,7 @@ export const EXPLORER = {
   [NetworkId.MATIC]: "https://polygonscan.com",
   [NetworkId.EVMOS]: "https://evm.evmos.org",
   [NetworkId.BNB]: "https://bscscan.com",
-  [NetworkId.MOVR]: "https://moonriver.moonscan.io/",
+  [NetworkId.MOVR]: "https://moonriver.moonscan.io",
   [NetworkId.XDAI]: "https://blockscout.com/poa/xdai",
   [NetworkId.ETC]: "https://blockscout.com/etc/mainnet",
   [NetworkId.AVAX]: "https://snowtrace.io",
