@@ -21,7 +21,7 @@ import refresh from "../assets/icons/youtube.svg";
 
 import { UserContext } from "../store/contexts";
 import { useWeb3React } from "@web3-react/core";
-import { EXPLORER, getSymbol, NetworkData, URLS } from "../utils/config";
+import { EXPLORER, getSymbol, NetworkData, supportedChainIds, URLS } from "../utils/config";
 import { useEffect } from "react";
 // import { getSymbol } from "../utils/getCurrencySymbol";
 import { injected } from "../utils/connector";
@@ -100,6 +100,7 @@ const Profile = () => {
   };
 
   const handleSwitchNetwork = async (_chainId) => {
+    if(!supportedChainIds.includes(Number(_chainId))) return;
     activate(injected)
     await switchNetwork(Number(_chainId))
     setToggleSwitchNetwork(false);
@@ -133,7 +134,7 @@ const Profile = () => {
         return (
           <div key={index} onClick={() => handleSwitchNetwork(val.id)}>
             <mark style={{ background: val.color }}></mark>
-            <code>{val.name}</code>
+            <code>{val.name}&nbsp;{!supportedChainIds.includes(Number(val.id)) && "(Coming soon)"}</code>
           </div>
         );
       })}

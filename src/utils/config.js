@@ -40,14 +40,6 @@ export const NetworkId = {
   OPTIMISM: 10
 }
 export const NetworkData = {
-  [NetworkId.RINKEBY]: {
-    id: '4',
-    color: '#F4DD62',
-    symbol: "ETH",
-    name: "RINKEBY",
-    logo: logo_eth,
-    loader: ethLoader
-  },
   [NetworkId.MATIC]: {
     symbol: "MATIC",
     id: "137",
@@ -55,22 +47,6 @@ export const NetworkData = {
     color: "#8247e5",
     logo: logo_matic,
     loader: maticLoader
-  },
-  [NetworkId.AVAX]: {
-    symbol: "AVAX",
-    id: "43114",
-    name: "AVALANCHE",
-    color: "#de4437",
-    logo: logo_avax,
-    loader: avaxLoader
-  },
-  [NetworkId.EGEM]: {
-    symbol: "EGEM",
-    id: "1987",
-    name: "ETHERGEM",
-    color: "#dfdfdf",
-    logo: logo_egem,
-    loader: egemLoader
   },
   [NetworkId.BNB]: {
     symbol: "BNB",
@@ -80,6 +56,14 @@ export const NetworkData = {
     logo: logo_bnb,
     loader: bnbLoader
   },
+  [NetworkId.ETC]: {
+    symbol: "ETC",
+    id: "61",
+    name: "ETHEREUM CLASSIC",
+    color: "#34d399",
+    logo: logo_etc,
+    loader: etcLoader
+  },
   [NetworkId.XDAI]: {
     symbol: "XDAI",
     id: "100",
@@ -88,13 +72,29 @@ export const NetworkData = {
     logo: logo_xdai,
     loader: xdaiLoader
   },
-  [NetworkId.EVMOS]: {
-    symbol: "EVMOS",
-    id: "9001",
-    name: "EVMOS",
-    color: "#2d2925",
-    logo: logo_evmos,
-    loader: evmosLoader
+  [NetworkId.EGEM]: {
+    symbol: "EGEM",
+    id: "1987",
+    name: "ETHERGEM",
+    color: "#dfdfdf",
+    logo: logo_egem,
+    loader: egemLoader
+  },
+  [NetworkId.AVAX]: {
+    symbol: "AVAX",
+    id: "43114",
+    name: "AVALANCHE",
+    color: "#de4437",
+    logo: logo_avax,
+    loader: avaxLoader
+  },
+  [NetworkId.RINKEBY]: {
+    id: '4',
+    color: '#F4DD62',
+    symbol: "ETH",
+    name: "RINKEBY",
+    logo: logo_eth,
+    loader: ethLoader
   },
   [NetworkId.MOVR]: {
     symbol: "MOVR",
@@ -104,13 +104,13 @@ export const NetworkData = {
     logo: logo_movr,
     loader: movrLoader
   },
-  [NetworkId.ETC]: {
-    symbol: "ETC",
-    id: "61",
-    name: "ETHEREUM CLASSIC",
-    color: "#34d399",
-    logo: logo_etc,
-    loader: etcLoader
+  [NetworkId.EVMOS]: {
+    symbol: "EVMOS",
+    id: "9001",
+    name: "EVMOS",
+    color: "#2d2925",
+    logo: logo_evmos,
+    loader: evmosLoader
   },
   [NetworkId.ARBITRUM]: {
     symbol: "ETH",
@@ -139,6 +139,7 @@ export const getSymbol = (chainId) => {
   if(chainId) return NetworkData[chainId].symbol;
   else return "N/A"
 }
+export const supportedChainIds = [ 137, 56, 61, 100, 1987, 43114, 4, 1285, 9001]
 export const getLogUrl = {
   [NetworkId.MATIC]: "https://api.polygonscan.com/api?module=logs&action=getLogs",
   [NetworkId.AVAX]: "https://api.snowtrace.io/api?module=logs&action=getLogs",
