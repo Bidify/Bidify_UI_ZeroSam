@@ -1,5 +1,13 @@
 # Bidify App Front end
 
+Environments
+```
+$ node --version
+v14.21.2
+$ yarn --version
+1.22.19
+```
+
 Install dependencies
 ```shell
 yarn
