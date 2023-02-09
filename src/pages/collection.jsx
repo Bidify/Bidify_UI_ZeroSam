@@ -50,6 +50,10 @@ const Collection = () => {
       console.log("getting from blockchain")
       const newData = await getDetails()
       console.log("fetching from chain", newData)
+      userDispatch({
+        type: "MY_COLLECTIONS",
+        payload: { results: newData },
+      });
       await handleUpdate(newData)
     }
     else {

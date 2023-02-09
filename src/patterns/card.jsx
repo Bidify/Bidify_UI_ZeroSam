@@ -423,7 +423,7 @@ const Card = (props) => {
             placeholder={
               <div></div>
             }
-            onError={(e) => {console.log(e);setIsVideo(true)}}
+            onError={(e) => {console.log(e);/*setIsVideo(true)*/}}
             afterLoad={() => {console.log("loaded images");setLoadingImage(false)}}
           />
         </>
