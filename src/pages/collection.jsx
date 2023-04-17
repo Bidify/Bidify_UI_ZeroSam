@@ -109,11 +109,9 @@ const Collection = () => {
           "0c8149f8e63b4b818d441dd7f74ab618"
         );
         break;
-      case 1987: case 43114: case 137: case 56: case 9001: case 1285: case 61: case 100:
-        provider = new ethers.providers.JsonRpcProvider(URLS[chainId])
-        break;
       default:
-        console.log("select valid chain");
+        if (!URLS[chainId]) console.log("select valid chain");
+        else provider = new ethers.providers.JsonRpcProvider(URLS[chainId])
     }
 
     const ethersConfig = {

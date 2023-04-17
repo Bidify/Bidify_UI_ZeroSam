@@ -1,4 +1,5 @@
 import { InjectedConnector } from "@web3-react/injected-connector";
+import { supportedChainIds } from "./config";
 // import { NetworkConnector } from '@web3-react/network-connector'
 
 // const POLLING_INTERVAL = 12000
@@ -7,7 +8,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 // };
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [4, 1987, 43114, 137, 100, 61, 9001, 1285, 56],
+  supportedChainIds: supportedChainIds, //[4, 1987, 43114, 137, 100, 61, 9001, 1285, 56],
 });
 
 // export const network = new NetworkConnector({

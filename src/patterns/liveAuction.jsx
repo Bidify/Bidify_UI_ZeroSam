@@ -34,6 +34,10 @@ const LiveAuction = () => {
   const [update, setUpdate] = useState([])
   //HANDLING METHODS
   const getAuctions = () => {
+    userDispatch({
+      type: "LIVE_AUCTION_NFT",
+      payload: { results: undefined },
+    });
     axios.get(`${baseUrl}/auctions`, { params: { chainId: chainId } })
       .then(response => {
         const results = response.data
@@ -56,17 +60,14 @@ const LiveAuction = () => {
   }
   useEffect(() => {
     if (!active) return
-    // getLists();
-    userDispatch({
-      type: "LIVE_AUCTION_NFT",
-      payload: { results: undefined },
-    });
-    getAuctions()
+    // getLists(); // get data from on-chain
+    getAuctions() //get data from database
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, chainId]);
 
   // eslint-disable-next-line no-unused-vars
   const getLists = async () => {
+    console.log('fetch data from on-chain')
     userDispatch({
       type: "LIVE_AUCTION_NFT",
       payload: { results: undefined },
@@ -95,6 +96,7 @@ const LiveAuction = () => {
     
     if(chainId !== 43114 && chainId !== 137 && chainId !== 56 && chainId !== 9001 && chainId !== 1285) Lists = await Promise.all(pLists);
     getDetails(Lists);
+    console.log('fetched data from on-chain')
   };
 
   const getListingDetail = async (id) => {
@@ -297,6 +299,7 @@ const LiveAuction = () => {
   const handleUpdate = async () => {
     if (update.length === 0) return
     const res = await axios.post(`${baseUrl}/admin`, update)
+    console.log('updated database')
     return res
   }
   const renderCards = (

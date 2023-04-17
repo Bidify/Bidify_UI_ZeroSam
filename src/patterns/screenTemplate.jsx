@@ -8,6 +8,7 @@ import { Button, Text } from "../components";
 //IMPORTING MEDIA ASSETS
 
 import logofull from "../assets/logo/logofull.svg";
+import { supportedChainIds } from "../utils/config";
 
 const ScreenTemplate = ({ children }) => {
   const [initailLoad, setInitialLoad] = useState(true);
@@ -18,16 +19,7 @@ const ScreenTemplate = ({ children }) => {
   useEffect(() => {
     if (chainId) {
       if (
-        chainId === 4 ||
-        chainId === 1 ||
-        chainId === 1987 ||
-        chainId === 43114 ||
-        chainId === 137 ||
-        chainId === 9001 ||
-        chainId === 1285 ||
-        chainId === 61 ||
-        chainId === 100 ||
-        chainId === 56
+        supportedChainIds.includes(chainId)
       ) {
         setWrongNetwork(false);
       } else setWrongNetwork(true);
